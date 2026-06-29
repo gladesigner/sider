@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d1117">
+<title>VM 2026 Oddssjekker</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2330; --line:#2a3340;
+    --text:#e6edf3; --muted:#9aa7b4; --accent:#4f9cff; --green:#3fb950;
+    --safe-t:env(safe-area-inset-top); --safe-b:env(safe-area-inset-bottom);
+    --safe-l:env(safe-area-inset-left); --safe-r:env(safe-area-inset-right);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.5;
+    padding:calc(18px + var(--safe-t)) calc(14px + var(--safe-r)) calc(48px + var(--safe-b)) calc(14px + var(--safe-l))}
+  .wrap{max-width:680px;margin:0 auto}
+  header{text-align:center;margin-bottom:6px}
+  h1{font-size:1.55rem;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+  h1 .ball{color:var(--accent)}
+  .sub{color:var(--muted);font-size:.86rem;margin-top:5px}
+  .note{color:var(--muted);font-size:.74rem;margin-top:7px;line-height:1.45}
+  h2{font-size:1.08rem;margin:28px 0 12px;font-weight:700}
+
+  /* filters — horisontal scroll på mobil */
+  .filters{display:flex;gap:8px;overflow-x:auto;padding:18px 2px 6px;margin:0 -2px;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .filters::-webkit-scrollbar{display:none}
+  .chip{background:var(--panel);border:1px solid var(--line);color:var(--muted);
+    padding:11px 16px;border-radius:22px;cursor:pointer;font-size:.9rem;
+    white-space:nowrap;flex-shrink:0;transition:.15s;min-height:44px;display:flex;align-items:center}
+  .chip.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+
+  /* match card */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:15px 16px;margin-bottom:13px}
+  .card.done{opacity:.62}
+  .crow{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;gap:8px}
+  .teams{font-size:1.02rem;font-weight:700;line-height:1.3}
+  .meta{color:var(--muted);font-size:.76rem;text-align:right;white-space:nowrap;flex-shrink:0}
+  .tag{display:inline-block;font-size:.66rem;padding:2px 7px;border-radius:10px;
+    background:var(--panel2);border:1px solid var(--line);color:var(--muted);margin-left:5px;white-space:nowrap}
+  .tag.live{background:#3fb95022;border-color:#3fb95055;color:var(--green)}
+  .tag.done{background:#8b949e22;color:var(--muted)}
+
+  /* prob bar — høyere for touch/lesbarhet */
+  .bar{display:flex;height:34px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+  .seg{display:flex;align-items:center;justify-content:center;font-size:.76rem;font-weight:700;
+    color:#fff;min-width:0;white-space:nowrap}
+  .seg.h{background:linear-gradient(180deg,#5aa6ff,#3d82e0)}
+  .seg.d{background:linear-gradient(180deg,#7d8893,#5d6770)}
+  .seg.a{background:linear-gradient(180deg,#f49a52,#d97a2e)}
+  .legend{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;margin-top:8px;font-size:.76rem;color:var(--muted)}
+  .legend span:nth-child(2){text-align:center}
+  .legend span:last-child{text-align:right}
+  .legend b{color:var(--text);font-weight:600}
+  .best{margin-top:10px;font-size:.84rem}
+  .best b{color:var(--green)}
+  .result{margin-top:9px;font-size:.82rem;color:var(--muted)}
+
+  /* winner list */
+  .wlist .wrow{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .wname{width:88px;font-weight:600;font-size:.85rem;flex-shrink:0}
+  .wtrack{flex:1;background:var(--panel2);border-radius:6px;overflow:hidden;height:24px}
+  .wfill{height:100%;background:linear-gradient(90deg,#3d82e0,#5aa6ff);
+    display:flex;align-items:center;padding-left:8px;font-size:.74rem;font-weight:700;color:#fff;min-width:40px}
+
+  /* calculator */
+  .calc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .calc label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:6px}
+  .calc-row{display:flex;flex-direction:column;gap:14px}
+  /* font-size 16px hindrer auto-zoom på iOS */
+  .calc input,.calc select{background:var(--panel2);border:1px solid var(--line);color:var(--text);
+    padding:13px 14px;border-radius:10px;font-size:16px;width:100%;min-height:48px;
+    -webkit-appearance:none;appearance:none}
+  .calc select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239aa7b4' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat:no-repeat;background-position:right 14px center}
+  .calc input:focus,.calc select:focus{outline:none;border-color:var(--accent)}
+  .calc-out{margin-top:18px;font-size:1.35rem;font-weight:800}
+  .calc-out span{color:var(--accent)}
+  .calc-hint{color:var(--muted);font-size:.78rem;margin-top:7px;line-height:1.45}
+
+  footer{text-align:center;color:var(--muted);font-size:.74rem;margin-top:32px;line-height:1.8}
+  .empty{text-align:center;color:var(--muted);padding:26px;font-style:italic}
+
+  /* litt mer luft på større skjermer */
+  @media(min-width:560px){
+    h1{font-size:1.9rem}
+    .calc-row{flex-direction:row;align-items:flex-end}
+    .calc input,.calc select{width:200px}
+    .wname{width:120px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span class="ball">⚽</span> VM 2026 Oddssjekker</h1>
+    <div class="sub">Mest sannsynlig utfall basert på bookmaker-odds</div>
+    <div class="note">Implisitt sannsynlighet regnet om fra amerikanske odds (inkl. bookmaker-margin). Oppdatert 29. juni 2026.</div>
+  </header>
+
+  <div class="filters" id="filters"></div>
+  <div id="matches"></div>
+
+  <h2>🏆 Hvem vinner VM?</h2>
+  <div class="card wlist" id="winners"></div>
+
+  <h2>🧮 Odds-kalkulator</h2>
+  <div class="calc">
+    <div class="calc-row">
+      <div>
+        <label>Oddstype</label>
+        <select id="otype">
+          <option value="decimal">Desimal (f.eks. 2.50)</option>
+          <option value="american">Amerikansk (f.eks. -140 / +260)</option>
+        </select>
+      </div>
+      <div>
+        <label>Odds</label>
+        <input id="oval" type="text" inputmode="decimal" placeholder="2.50" value="2.50">
+      </div>
+    </div>
+    <div class="calc-out">Sannsynlighet: <span id="cresult">40,0 %</span></div>
+    <div class="calc-hint">Lav odds = høy sannsynlighet, men liten gevinst. Høy odds = lav sannsynlighet, men stor gevinst.</div>
+  </div>
+
+  <footer>
+    Odds varierer mellom bookmakere (FanDuel / DraftKings / ESPN-linjer brukt her).<br>
+    «Mest sannsynlig utfall» er ikke det samme som god verdi.<br>
+    Kun til informasjon. 18+. Spill ansvarlig.
+  </footer>
+</div>
+
+<script>
+const matches = [
+  {date:"28. juni", group:"28", home:"Sør-Afrika", away:"Canada", time:"Spilt", h:500, d:260, a:-130, result:"Canada vant og er videre til 8-delsfinale.", done:true},
+  {date:"29. juni", group:"29", home:"Brasil", away:"Japan", time:"19:00", h:-140, d:260, a:420},
+  {date:"29. juni", group:"29", home:"Tyskland", away:"Paraguay", time:"22:30", h:-300, d:400, a:850},
+  {date:"30. juni", group:"30", home:"Elfenbenskysten", away:"Norge", time:"19:00", h:null, d:null, a:null, no_odds:true, norway:true},
+  {date:"30. juni", group:"30", home:"Frankrike", away:"Sverige", time:"23:00", h:-400, d:500, a:1000},
+  {date:"30. juni", group:"30", home:"Mexico", away:"Ecuador", time:"03:00", h:120, d:190, a:290},
+  {date:"Senere", group:"later", home:"Nederland", away:"Marokko", time:"16-delsfinale", h:130, d:200, a:240},
+  {date:"Senere", group:"later", home:"Spania", away:"Østerrike", time:"2. juli", h:null, d:null, a:null, fav:"Spania klar favoritt (videre-odds)"},
+  {date:"Senere", group:"later", home:"Portugal", away:"Kroatia", time:"2. juli", h:null, d:null, a:null, fav:"Portugal favoritt (videre-odds)"},
+  {date:"Senere", group:"later", home:"England", away:"DR Kongo", time:"1. juli", h:null, d:null, a:null, fav:"England stor favoritt (videre-odds)"},
+  {date:"Senere", group:"later", home:"Belgia", away:"Senegal", time:"1. juli", h:null, d:null, a:null, fav:"Belgia favoritt (videre-odds)"},
+];
+
+const winners = [
+  {team:"Frankrike", p:22.2}, {team:"Argentina", p:18.9}, {team:"Spania", p:12.5},
+  {team:"England", p:12.5}, {team:"Portugal", p:8.3}, {team:"Brasil", p:7.7},
+  {team:"Nederland", p:5.9}, {team:"Tyskland", p:4.8}, {team:"USA", p:3.8},
+];
+
+function amToProb(o){ return o<0 ? (-o)/((-o)+100) : 100/(o+100); }
+function fmt(p){ return Math.round(p*100)+"%"; }
+function fmt1(p){ return p.toFixed(1).replace('.',',')+" %"; }
+
+function renderMatch(m){
+  const card = document.createElement('div');
+  card.className = 'card' + (m.done?' done':'');
+  let tag = m.done ? '<span class="tag done">Ferdig</span>' : (m.norway?'<span class="tag live">🇳🇴 Norge</span>':'');
+  let body = '';
+  if(m.h!=null){
+    let ph=amToProb(m.h), pd=amToProb(m.d), pa=amToProb(m.a);
+    const s=ph+pd+pa; ph/=s; pd/=s; pa/=s;
+    const best = ph>=pd&&ph>=pa ? m.home : (pa>=pd ? m.away : "Uavgjort");
+    body = `
+      <div class="bar">
+        <div class="seg h" style="flex:${ph}">${ph>0.14?fmt(ph):''}</div>
+        <div class="seg d" style="flex:${pd}">${pd>0.14?fmt(pd):''}</div>
+        <div class="seg a" style="flex:${pa}">${pa>0.14?fmt(pa):''}</div>
+      </div>
+      <div class="legend">
+        <span><b>${m.home}</b> ${fmt(ph)}</span>
+        <span>U ${fmt(pd)}</span>
+        <span><b>${m.away}</b> ${fmt(pa)}</span>
+      </div>`;
+    if(m.result){ body += `<div class="result">✓ ${m.result}</div>`; }
+    else { body += `<div class="best">Mest sannsynlig: <b>${best}</b></div>`; }
+  } else if(m.fav){
+    body = `<div class="best">⭐ ${m.fav}</div>`;
+  } else if(m.no_odds){
+    body = `<div class="result">Kampodds ikke tilgjengelig ennå.</div>`;
+  }
+  card.innerHTML = `
+    <div class="crow">
+      <div class="teams">${m.home} – ${m.away} ${tag}</div>
+      <div class="meta">${m.date}<br>${m.time}</div>
+    </div>${body}`;
+  return card;
+}
+
+function renderMatches(filter){
+  const box = document.getElementById('matches'); box.innerHTML='';
+  const list = matches.filter(m=> filter==='all' || m.group===filter);
+  if(!list.length){ box.innerHTML='<div class="empty">Ingen kamper i dette filteret.</div>'; return; }
+  list.forEach(m=> box.appendChild(renderMatch(m)));
+}
+
+const fdefs = [['all','Alle'],['29','29. juni'],['30','30. juni'],['later','Kommende']];
+const fbox = document.getElementById('filters');
+fdefs.forEach((f,i)=>{
+  const c=document.createElement('div'); c.className='chip'+(i===0?' active':''); c.textContent=f[1];
+  c.onclick=()=>{ document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active'); renderMatches(f[0]); };
+  fbox.appendChild(c);
+});
+
+const wbox=document.getElementById('winners');
+const maxP=Math.max(...winners.map(w=>w.p));
+winners.forEach(w=>{
+  const row=document.createElement('div'); row.className='wrow';
+  row.innerHTML=`<div class="wname">${w.team}</div>
+    <div class="wtrack"><div class="wfill" style="width:${(w.p/maxP*100)}%">${fmt1(w.p)}</div></div>`;
+  wbox.appendChild(row);
+});
+
+const otype=document.getElementById('otype'), oval=document.getElementById('oval'), cres=document.getElementById('cresult');
+function calc(){
+  let v=parseFloat(oval.value.replace(',','.'));
+  if(isNaN(v)){ cres.textContent='–'; return; }
+  let p;
+  if(otype.value==='decimal'){ if(v<=1){cres.textContent='–';return;} p=1/v; }
+  else { p=amToProb(v); }
+  cres.textContent=fmt1(p*100);
+}
+otype.onchange=()=>{ oval.placeholder=otype.value==='decimal'?'2.50':'-140'; calc(); };
+oval.oninput=calc;
+
+renderMatches('all');
+calc();
+</script>
+</body>
+</html>
