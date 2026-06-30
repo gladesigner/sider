@@ -65,7 +65,7 @@
 
   /* winner list */
   .wlist .wrow{display:flex;align-items:center;gap:10px;margin-bottom:9px}
-  .wname{width:88px;font-weight:600;font-size:.85rem;flex-shrink:0}
+  .wname{width:104px;font-weight:600;font-size:.78rem;line-height:1.15;flex-shrink:0}
   .wtrack{flex:1;background:var(--panel2);border-radius:6px;overflow:hidden;height:24px}
   .wfill{height:100%;background:linear-gradient(90deg,#3d82e0,#5aa6ff);
     display:flex;align-items:center;padding-left:8px;font-size:.74rem;font-weight:700;color:#fff;min-width:40px}
@@ -93,7 +93,7 @@
     h1{font-size:1.9rem}
     .calc-row{flex-direction:row;align-items:flex-end}
     .calc input,.calc select{width:200px}
-    .wname{width:120px}
+    .wname{width:150px;font-size:.85rem}
   }
 </style>
 </head>
@@ -102,7 +102,7 @@
   <header>
     <h1><span class="ball">⚽</span> VM 2026 Oddssjekker</h1>
     <div class="sub">Mest sannsynlig utfall basert på bookmaker-odds</div>
-    <div class="note">Implisitt sannsynlighet regnet om fra amerikanske odds (inkl. bookmaker-margin). Oppdatert 29. juni 2026.</div>
+    <div class="note">Implisitt sannsynlighet regnet om fra bookmaker-odds (inkl. margin). Konsensus fra Norden, England, Frankrike, Spania, Tyskland og Italia. Oppdatert 30. juni 2026.</div>
   </header>
 
   <div class="filters" id="filters"></div>
@@ -131,7 +131,7 @@
   </div>
 
   <footer>
-    Odds varierer mellom bookmakere (FanDuel / DraftKings / ESPN-linjer brukt her).<br>
+    Odds varierer mellom bookmakere (Norsk Tipping, Unibet, bet365, FanDuel m.fl. brukt her).<br>
     «Mest sannsynlig utfall» er ikke det samme som god verdi.<br>
     Kun til informasjon. 18+. Spill ansvarlig.
   </footer>
@@ -139,23 +139,27 @@
 
 <script>
 const matches = [
-  {date:"28. juni", group:"28", home:"Sør-Afrika", away:"Canada", time:"Spilt", h:500, d:260, a:-130, result:"Canada vant og er videre til 8-delsfinale.", done:true},
-  {date:"29. juni", group:"29", home:"Brasil", away:"Japan", time:"19:00", h:-140, d:260, a:420},
-  {date:"29. juni", group:"29", home:"Tyskland", away:"Paraguay", time:"22:30", h:-300, d:400, a:850},
-  {date:"30. juni", group:"30", home:"Elfenbenskysten", away:"Norge", time:"19:00", h:null, d:null, a:null, no_odds:true, norway:true},
+  {date:"30. juni", group:"30", home:"Elfenbenskysten", away:"Norge", time:"19:00", h:250, d:240, a:110, norway:true},
   {date:"30. juni", group:"30", home:"Frankrike", away:"Sverige", time:"23:00", h:-400, d:500, a:1000},
-  {date:"30. juni", group:"30", home:"Mexico", away:"Ecuador", time:"03:00", h:120, d:190, a:290},
-  {date:"Senere", group:"later", home:"Nederland", away:"Marokko", time:"16-delsfinale", h:130, d:200, a:240},
+  {date:"30. juni", group:"30", home:"Mexico", away:"Ecuador", time:"01:00 (natt til 1.7.)", h:120, d:190, a:290},
   {date:"Senere", group:"later", home:"Spania", away:"Østerrike", time:"2. juli", h:null, d:null, a:null, fav:"Spania klar favoritt (videre-odds)"},
   {date:"Senere", group:"later", home:"Portugal", away:"Kroatia", time:"2. juli", h:null, d:null, a:null, fav:"Portugal favoritt (videre-odds)"},
   {date:"Senere", group:"later", home:"England", away:"DR Kongo", time:"1. juli", h:null, d:null, a:null, fav:"England stor favoritt (videre-odds)"},
   {date:"Senere", group:"later", home:"Belgia", away:"Senegal", time:"1. juli", h:null, d:null, a:null, fav:"Belgia favoritt (videre-odds)"},
 ];
 
+// Alle 28 gjenværende lag. Implisitt vinnersannsynlighet fra BetMGM-odds (Yahoo, 28. juni), normalisert.
 const winners = [
-  {team:"Frankrike", p:22.2}, {team:"Argentina", p:18.9}, {team:"Spania", p:12.5},
-  {team:"England", p:12.5}, {team:"Portugal", p:8.3}, {team:"Brasil", p:7.7},
-  {team:"Nederland", p:5.9}, {team:"Tyskland", p:4.8}, {team:"USA", p:3.8},
+  {team:"Frankrike", p:22.6}, {team:"Argentina", p:18.0}, {team:"Spania", p:11.3},
+  {team:"England", p:11.3}, {team:"Portugal", p:7.5}, {team:"Brasil", p:6.9},
+  {team:"USA", p:3.5}, {team:"Colombia", p:2.7}, {team:"Norge", p:2.7},
+  {team:"Belgia", p:2.2}, {team:"Mexico", p:1.8}, {team:"Marokko", p:1.8},
+  {team:"Sveits", p:1.3}, {team:"Kroatia", p:0.9}, {team:"Senegal", p:0.9},
+  {team:"Ecuador", p:0.7}, {team:"Canada", p:0.6}, {team:"Elfenbenskysten", p:0.6},
+  {team:"Australia", p:0.45}, {team:"Østerrike", p:0.36}, {team:"Egypt", p:0.36},
+  {team:"Sverige", p:0.36}, {team:"Algerie", p:0.30}, {team:"Ghana", p:0.26},
+  {team:"Bosnia-Hercegovina", p:0.18}, {team:"Kapp Verde", p:0.18},
+  {team:"DR Kongo", p:0.18}, {team:"Paraguay", p:0.18},
 ];
 
 function amToProb(o){ return o<0 ? (-o)/((-o)+100) : 100/(o+100); }
@@ -204,7 +208,7 @@ function renderMatches(filter){
   list.forEach(m=> box.appendChild(renderMatch(m)));
 }
 
-const fdefs = [['all','Alle'],['29','29. juni'],['30','30. juni'],['later','Kommende']];
+const fdefs = [['all','Alle'],['30','30. juni'],['later','Kommende']];
 const fbox = document.getElementById('filters');
 fdefs.forEach((f,i)=>{
   const c=document.createElement('div'); c.className='chip'+(i===0?' active':''); c.textContent=f[1];
