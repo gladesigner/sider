@@ -102,7 +102,7 @@
   <header>
     <h1><span class="ball">⚽</span> VM 2026 Oddssjekker</h1>
     <div class="sub">Mest sannsynlig utfall basert på bookmaker-odds</div>
-    <div class="note">Implisitt sannsynlighet regnet om fra bookmaker-odds (inkl. margin). Konsensus fra Norden, England, Frankrike, Spania, Tyskland og Italia. Oppdatert 1. juli 2026.</div>
+    <div class="note">Implisitt sannsynlighet regnet om fra bookmaker-odds (inkl. margin). Konsensus fra Norden, England, Frankrike, Spania, Tyskland og Italia. Oppdatert 2. juli 2026.</div>
   </header>
 
   <div class="filters" id="filters"></div>
@@ -140,29 +140,28 @@
 <script>
 // ===DATA_START=== (denne blokken oppdateres automatisk hver morgen av oppgaven "vm-odds-daglig")
 const matches = [
-  {date:"30. juni", group:"30", home:"Elfenbenskysten", away:"Norge", time:"Spilt", h:250, d:240, a:110, norway:true, done:true, result:"Norge vant og er videre til 8-delsfinale! 🇳🇴"},
-  {date:"1. juli", group:"1", home:"England", away:"DR Kongo", time:"18:00", h:-800, d:600, a:1800},
-  {date:"1. juli", group:"1", home:"Belgia", away:"Senegal", time:"22:00", h:-200, d:330, a:475},
-  {date:"Senere", group:"later", home:"Spania", away:"Østerrike", time:"2. juli", h:null, d:null, a:null, fav:"Spania klar favoritt (videre-odds)"},
-  {date:"Senere", group:"later", home:"Portugal", away:"Kroatia", time:"2. juli", h:null, d:null, a:null, fav:"Portugal favoritt (videre-odds)"},
-  {date:"Senere", group:"later", home:"Sveits", away:"Algerie", time:"3. juli (natt)", h:null, d:null, a:null, fav:"Sveits favoritt (videre-odds)"},
-  {date:"Senere", group:"later", home:"Argentina", away:"Kapp Verde", time:"3. juli", h:null, d:null, a:null, fav:"Argentina stor favoritt (videre-odds)"},
-  {date:"Senere", group:"later", home:"Colombia", away:"Ghana", time:"3. juli", h:null, d:null, a:null, fav:"Colombia favoritt (videre-odds)"},
-  {date:"Senere", group:"later", home:"Australia", away:"Egypt", time:"3. juli", h:null, d:null, a:null, fav:"Jevnt (videre-odds)"},
+  {date:"1. juli", group:"1", home:"England", away:"DR Kongo", time:"Spilt", h:-800, d:600, a:1800, done:true, result:"England vant 2-1 (Kane scoret to sent) – videre til 8-delsfinale"},
+  {date:"1. juli", group:"1", home:"Belgia", away:"Senegal", time:"Spilt", h:-200, d:330, a:475, done:true, result:"Belgia vant 3-2 e.e.o. – snudde fra 0-2 og er videre"},
+  {date:"2. juli", group:"2", home:"Spania", away:"Østerrike", time:"21:00", h:-320, d:420, a:1000},
+  {date:"2. juli", group:"2", home:"Portugal", away:"Kroatia", time:"01:00 (natt til 3.)", h:-130, d:260, a:400},
+  {date:"2. juli", group:"2", home:"Sveits", away:"Algerie", time:"05:00 (natt til 3.)", h:102, d:210, a:294},
+  {date:"Senere", group:"later", home:"Australia", away:"Egypt", time:"3. juli 19:00", h:null, d:null, a:null, fav:"Jevnt – Australia svak favoritt (videre-odds)"},
+  {date:"Senere", group:"later", home:"Argentina", away:"Kapp Verde", time:"4. juli 00:00", h:null, d:null, a:null, fav:"Argentina stor favoritt (videre-odds)"},
+  {date:"Senere", group:"later", home:"Colombia", away:"Ghana", time:"4. juli 02:30", h:null, d:null, a:null, fav:"Colombia favoritt (videre-odds)"},
+  {date:"Senere", group:"later", home:"Canada", away:"Marokko", time:"4. juli", h:null, d:null, a:null, fav:"Marokko favoritt (videre-odds)"},
+  {date:"Senere", group:"later", home:"Norge", away:"8-delsfinale", time:"4.–6. juli", h:null, d:null, a:null, norway:true, fav:"🇳🇴 Norge er klar for 8-delsfinale – motstander og odds ikke satt ennå"},
 ];
 
-// Alle 28 gjenværende lag. Implisitt vinnersannsynlighet fra BetMGM-odds (Yahoo, 28. juni), normalisert.
+// Gjenværende lag. Implisitt vinnersannsynlighet fra vinner-VM-futures (FOX/Yahoo, 2. juli), normalisert – anslag.
 const winners = [
-  {team:"Frankrike", p:22.6}, {team:"Argentina", p:18.0}, {team:"Spania", p:11.3},
-  {team:"England", p:11.3}, {team:"Portugal", p:7.5}, {team:"Brasil", p:6.9},
-  {team:"USA", p:3.5}, {team:"Colombia", p:2.7}, {team:"Norge", p:2.7},
-  {team:"Belgia", p:2.2}, {team:"Mexico", p:1.8}, {team:"Marokko", p:1.8},
-  {team:"Sveits", p:1.3}, {team:"Kroatia", p:0.9}, {team:"Senegal", p:0.9},
-  {team:"Canada", p:0.6},
-  {team:"Australia", p:0.45}, {team:"Østerrike", p:0.36}, {team:"Egypt", p:0.36},
-  {team:"Algerie", p:0.30}, {team:"Ghana", p:0.26},
-  {team:"Bosnia-Hercegovina", p:0.18}, {team:"Kapp Verde", p:0.18},
-  {team:"DR Kongo", p:0.18}, {team:"Paraguay", p:0.18},
+  {team:"Frankrike", p:24.8}, {team:"Argentina", p:17.8}, {team:"Spania", p:11.1},
+  {team:"England", p:11.1}, {team:"Brasil", p:8.1}, {team:"Portugal", p:6.0},
+  {team:"USA", p:3.4}, {team:"Mexico", p:2.9}, {team:"Belgia", p:2.9},
+  {team:"Colombia", p:2.5}, {team:"Norge", p:2.1}, {team:"Marokko", p:1.8},
+  {team:"Sveits", p:1.1}, {team:"Kroatia", p:1.1}, {team:"Canada", p:0.9},
+  {team:"Australia", p:0.6}, {team:"Østerrike", p:0.4}, {team:"Egypt", p:0.4},
+  {team:"Algerie", p:0.4}, {team:"Ghana", p:0.3},
+  {team:"Kapp Verde", p:0.2}, {team:"Paraguay", p:0.2},
 ];
 // ===DATA_END===
 
