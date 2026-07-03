@@ -102,7 +102,7 @@
   <header>
     <h1><span class="ball">⚽</span> VM 2026 Oddssjekker</h1>
     <div class="sub">Mest sannsynlig utfall basert på bookmaker-odds</div>
-    <div class="note">Implisitt sannsynlighet regnet om fra bookmaker-odds (inkl. margin). Konsensus fra Norden, England, Frankrike, Spania, Tyskland og Italia. Oppdatert 2. juli 2026.</div>
+    <div class="note">Implisitt sannsynlighet regnet om fra bookmaker-odds (inkl. margin). Konsensus fra Norden, England, Frankrike, Spania, Tyskland og Italia. Oppdatert 3. juli 2026.</div>
   </header>
 
   <div class="filters" id="filters"></div>
@@ -140,28 +140,24 @@
 <script>
 // ===DATA_START=== (denne blokken oppdateres automatisk hver morgen av oppgaven "vm-odds-daglig")
 const matches = [
-  {date:"1. juli", group:"1", home:"England", away:"DR Kongo", time:"Spilt", h:-800, d:600, a:1800, done:true, result:"England vant 2-1 (Kane scoret to sent) – videre til 8-delsfinale"},
-  {date:"1. juli", group:"1", home:"Belgia", away:"Senegal", time:"Spilt", h:-200, d:330, a:475, done:true, result:"Belgia vant 3-2 e.e.o. – snudde fra 0-2 og er videre"},
-  {date:"2. juli", group:"2", home:"Spania", away:"Østerrike", time:"21:00", h:-320, d:420, a:1000},
-  {date:"2. juli", group:"2", home:"Portugal", away:"Kroatia", time:"01:00 (natt til 3.)", h:-130, d:260, a:400},
-  {date:"2. juli", group:"2", home:"Sveits", away:"Algerie", time:"05:00 (natt til 3.)", h:102, d:210, a:294},
-  {date:"Senere", group:"later", home:"Australia", away:"Egypt", time:"3. juli 19:00", h:null, d:null, a:null, fav:"Jevnt – Australia svak favoritt (videre-odds)"},
-  {date:"Senere", group:"later", home:"Argentina", away:"Kapp Verde", time:"4. juli 00:00", h:null, d:null, a:null, fav:"Argentina stor favoritt (videre-odds)"},
-  {date:"Senere", group:"later", home:"Colombia", away:"Ghana", time:"4. juli 02:30", h:null, d:null, a:null, fav:"Colombia favoritt (videre-odds)"},
-  {date:"Senere", group:"later", home:"Canada", away:"Marokko", time:"4. juli", h:null, d:null, a:null, fav:"Marokko favoritt (videre-odds)"},
-  {date:"Senere", group:"later", home:"Norge", away:"8-delsfinale", time:"4.–6. juli", h:null, d:null, a:null, norway:true, fav:"🇳🇴 Norge er klar for 8-delsfinale – motstander og odds ikke satt ennå"},
+  {date:"3. juli", group:"3", home:"Australia", away:"Egypt", time:"19:00", h:240, d:180, a:150},
+  {date:"3. juli", group:"3", home:"Argentina", away:"Kapp Verde", time:"00:00 (natt til 4.)", h:-700, d:700, a:2000},
+  {date:"3. juli", group:"3", home:"Colombia", away:"Ghana", time:"02:30 (natt til 4.)", h:-200, d:290, a:650},
+  {date:"4. juli", group:"4", home:"Canada", away:"Marokko", time:"kveld", h:420, d:240, a:-130},
+  {date:"5. juli", group:"5", home:"Brasil", away:"Norge", time:"04:00 (natt til 6.)", h:-120, d:260, a:340, norway:true},
+  {date:"Senere", group:"later", home:"England", away:"Mexico", time:"8-delsfinale, Azteca", h:null, d:null, a:null, fav:"England favoritt, men tøff bortekamp i Mexico City"},
+  {date:"Senere", group:"later", home:"USA", away:"Belgia", time:"8-delsfinale", h:null, d:null, a:null, fav:"Jevnt – USA knapp favoritt på hjemmebane"},
 ];
 
-// Gjenværende lag. Implisitt vinnersannsynlighet fra vinner-VM-futures (FOX/Yahoo, 2. juli), normalisert – anslag.
+// Gjenværende lag. Implisitt vinnersannsynlighet fra vinner-VM-futures (FOX/Yahoo/BetMGM, 3. juli), normalisert – anslag.
 const winners = [
-  {team:"Frankrike", p:24.8}, {team:"Argentina", p:17.8}, {team:"Spania", p:11.1},
-  {team:"England", p:11.1}, {team:"Brasil", p:8.1}, {team:"Portugal", p:6.0},
-  {team:"USA", p:3.4}, {team:"Mexico", p:2.9}, {team:"Belgia", p:2.9},
-  {team:"Colombia", p:2.5}, {team:"Norge", p:2.1}, {team:"Marokko", p:1.8},
-  {team:"Sveits", p:1.1}, {team:"Kroatia", p:1.1}, {team:"Canada", p:0.9},
-  {team:"Australia", p:0.6}, {team:"Østerrike", p:0.4}, {team:"Egypt", p:0.4},
-  {team:"Algerie", p:0.4}, {team:"Ghana", p:0.3},
-  {team:"Kapp Verde", p:0.2}, {team:"Paraguay", p:0.2},
+  {team:"Frankrike", p:30.3}, {team:"Argentina", p:17.0}, {team:"Spania", p:11.3},
+  {team:"Portugal", p:8.9}, {team:"England", p:8.5}, {team:"Brasil", p:7.7},
+  {team:"USA", p:3.2}, {team:"Colombia", p:2.5}, {team:"Belgia", p:2.0},
+  {team:"Norge", p:2.0}, {team:"Mexico", p:1.7}, {team:"Marokko", p:1.7},
+  {team:"Sveits", p:1.3}, {team:"Canada", p:0.6}, {team:"Australia", p:0.4},
+  {team:"Egypt", p:0.3}, {team:"Ghana", p:0.2}, {team:"Kapp Verde", p:0.2},
+  {team:"Paraguay", p:0.2},
 ];
 // ===DATA_END===
 
