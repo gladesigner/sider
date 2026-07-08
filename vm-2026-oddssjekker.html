@@ -102,7 +102,7 @@
   <header>
     <h1><span class="ball">⚽</span> VM 2026 Oddssjekker</h1>
     <div class="sub">Mest sannsynlig utfall basert på bookmaker-odds</div>
-    <div class="note">Implisitt sannsynlighet regnet om fra bookmaker-odds (inkl. margin). Konsensus fra Norden, England, Frankrike, Spania, Tyskland og Italia. Oppdatert 6. juli 2026.</div>
+    <div class="note">Implisitt sannsynlighet regnet om fra bookmaker-odds (inkl. margin). Konsensus fra Norden, England, Frankrike, Spania, Tyskland og Italia. Oppdatert 8. juli 2026.</div>
   </header>
 
   <div class="filters" id="filters"></div>
@@ -140,20 +140,18 @@
 <script>
 // ===DATA_START=== (denne blokken oppdateres automatisk hver morgen av oppgaven "vm-odds-daglig")
 const matches = [
-  {date:"6. juli", group:"6", home:"Portugal", away:"Spania", time:"21:00", h:310, d:260, a:-115},
-  {date:"6. juli", group:"6", home:"USA", away:"Belgia", time:"23:00", h:155, d:230, a:180},
-  {date:"7. juli", group:"7", home:"Argentina", away:"Egypt", time:"18:00", h:-275, d:375, a:700},
-  {date:"7. juli", group:"7", home:"Sveits", away:"Colombia", time:"22:00", h:250, d:210, a:120},
-  {date:"Senere", group:"later", home:"Frankrike", away:"Marokko", time:"Kvartfinale", h:null, d:null, a:null, fav:"Frankrike klar favoritt (vinnerodds ca. 37 % mot 3 %)"},
-  {date:"Senere", group:"later", home:"Norge", away:"England", time:"Lørdag 11. juli (kvartfinale)", h:null, d:null, a:null, norway:true, fav:"England favoritt (vinnerodds ca. 17 % mot 6 %) – men Norge slo Brasil 2–0!"},
+  {date:"9. juli", group:"9", home:"Frankrike", away:"Marokko", time:"22:00 (Boston)", h:-180, d:290, a:550},
+  {date:"10. juli", group:"10", home:"Spania", away:"Belgia", time:"21:00 (Los Angeles)", h:-170, d:290, a:500},
+  {date:"11. juli", group:"11", home:"Norge", away:"England", time:"23:00 (Miami)", h:280, d:250, a:-105, norway:true},
+  {date:"11. juli", group:"11", home:"Argentina", away:"Sveits", time:"03:00 natt til 12. juli (Kansas City)", h:-140, d:250, a:425},
 ];
 
-// Gjenværende 12 lag (Brasil og Mexico slått ut 5. juli). Implisitt vinnersannsynlighet fra VM-vinnerodds (FOX/FanDuel, 5.–6. juli) – anslag.
+// Gjenværende 8 lag etter åttedelsfinalene (Egypt og Colombia slått ut 7. juli).
+// Implisitt vinnersannsynlighet fra VM-vinnerodds (DraftKings/ESPN/FOX, 7.–8. juli). Marokko og Sveits: anslag.
 const winners = [
-  {team:"Frankrike", p:37.0}, {team:"Argentina", p:17.5}, {team:"England", p:16.7},
-  {team:"Spania", p:14.3}, {team:"Portugal", p:6.7}, {team:"Norge", p:6.3},
-  {team:"Colombia", p:3.8}, {team:"Marokko", p:3.2}, {team:"USA", p:3.2},
-  {team:"Belgia", p:2.0}, {team:"Sveits", p:1.4}, {team:"Egypt", p:0.3},
+  {team:"Frankrike", p:36.4}, {team:"Spania", p:21.3}, {team:"Argentina", p:20.4},
+  {team:"England", p:17.2}, {team:"Norge", p:6.7}, {team:"Belgia", p:3.2},
+  {team:"Marokko", p:3.0}, {team:"Sveits", p:2.0},
 ];
 // ===DATA_END===
 
