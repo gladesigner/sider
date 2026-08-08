@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1B211A">
-<meta name="description" content="Fem korte treningsøkter om dagen. Belønningsbasert hundetrening som gjør deg til en bedre trener.">
-<title>Fem om dagen</title>
+<meta name="description" content="En hundetreningsapp fra Gladesigner. Fem korte, belønningsbaserte treningsøkter om dagen.">
+<title>Fem om dagen — en hundetreningsapp fra Gladesigner</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="ikon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -233,6 +233,52 @@ ul.punkt li{margin-bottom:7px;font-size:.94rem}
 
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
+/* ---- merkevare ---- */
+.merke{display:flex;align-items:center;gap:11px}
+.merke__figur{flex:none}
+.merke__figur rect{fill:var(--oker)}
+.merke__figur .tom{fill:none;stroke:var(--linje);stroke-width:1.4}
+.side--mork .merke__figur .tom{stroke:#3F4C3C}
+.merke__figur .grense{fill:var(--oker-lys)}
+.merke__navn{font-family:var(--f-disp);font-weight:800;letter-spacing:-.025em;line-height:1}
+.byline{
+  font-family:var(--f-tall);font-size:.7rem;letter-spacing:.06em;
+  color:var(--tekst-svak);
+}
+.side--mork .byline{color:#9AA695}
+
+/* velkomst */
+.velkomst{
+  min-height:100dvh;background:var(--jord);color:var(--lav);
+  display:flex;flex-direction:column;justify-content:center;
+  padding:32px 24px calc(32px + env(safe-area-inset-bottom));
+}
+.velkomst h1{font-size:3.1rem;line-height:.94;margin:26px 0 10px}
+.velkomst .byline{color:#9AA695;font-size:.78rem;margin-bottom:34px}
+.velkomst p{color:#B8C2B2;font-size:1.02rem;max-width:34ch}
+.velkomst .knapp{background:var(--oker);color:var(--jord);margin-top:34px}
+.stripe{display:flex;gap:7px;align-items:flex-end;height:56px}
+.stripe i{
+  display:block;width:15px;height:100%;border-radius:4px;background:var(--oker);
+  transform-origin:bottom;animation:reis .5s cubic-bezier(.2,.9,.3,1) backwards;
+}
+.stripe i.tom{background:none;border:1.6px solid #3F4C3C}
+.stripe .grense{width:2px;background:var(--oker-lys);height:74px;border:none;animation-delay:.42s}
+@keyframes reis{from{transform:scaleY(0);opacity:0}to{transform:scaleY(1);opacity:1}}
+.stripe i:nth-child(1){animation-delay:.05s}
+.stripe i:nth-child(2){animation-delay:.11s}
+.stripe i:nth-child(3){animation-delay:.17s}
+.stripe i:nth-child(4){animation-delay:.23s}
+.stripe i:nth-child(5){animation-delay:.29s}
+.stripe i:nth-child(6){animation-delay:.35s}
+.stripe i:nth-child(8){animation-delay:.5s}
+.stripe i:nth-child(9){animation-delay:.56s}
+
+.bunnmerke{
+  border-top:1px solid var(--linje);margin-top:34px;padding-top:18px;
+  display:flex;flex-direction:column;gap:7px;
+}
+
 </style>
 </head>
 <body>
@@ -359,13 +405,48 @@ function meny() {
       ${NAVN[f]}</button>`).join('')}</nav>`;
 }
 
+/* ---- merkevare ---- */
+const MERKE = { navn: 'Fem om dagen', byline: 'En hundetreningsapp fra Gladesigner' };
+function figur(h = 20) {
+  const b = 3.4, g = 1.5, n = 8;
+  const bredde = n * b + (n - 1) * g + 2;
+  const ruter = Array.from({ length: n }, (_, i) => {
+    const x = 1 + i * (b + g);
+    return i < 6
+      ? `<rect x="${x}" y="4" width="${b}" height="16" rx="1"/>`
+      : `<rect class="tom" x="${x + .7}" y="4.7" width="${b - 1.4}" height="14.6" rx="1"/>`;
+  }).join('');
+  const gx = 1 + 6 * (b + g) - g / 2;
+  return `<svg class="merke__figur" viewBox="0 0 ${bredde} 24" height="${h}" width="${h * bredde / 24}"
+    aria-hidden="true">${ruter}<rect class="grense" x="${gx - .4}" y="1.6" width=".8" height="20.8"/></svg>`;
+}
+function merke(px = 18) {
+  return `<div class="merke">${figur(px)}
+    <span class="merke__navn" style="font-size:${px * .92}px">${MERKE.navn}</span></div>`;
+}
+
+/* ---- velkomst ---- */
+function visVelkomst() {
+  vis(`<div class="velkomst">
+    <div class="stripe" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i class="grense"></i><i class="tom"></i><i class="tom"></i>
+    </div>
+    <h1>Fem om<br>dagen</h1>
+    <div class="byline">${MERKE.byline}</div>
+    <p>Fem korte økter hver dag. Belønning, aldri straff. Hunden bestemmer tempoet — appen holder styr på når dere er klare for neste steg.</p>
+    <button class="knapp" id="igang">Kom i gang</button>
+  </div>`, false);
+  document.getElementById('igang').onclick = () => { velkommen = false; visOnboarding(); };
+}
+
 /* ---- onboarding ---- */
+let velkommen = true;
 let utkast = { navn: '', alder: 'voksen', vekt: 15, motivasjon: 'mat', aktivitet: 'normal' };
 function visOnboarding() {
   vis(`<div class="side">
     <div class="topp">
-      <div class="eyebrow">Kom i gang</div>
-      <h1>Hvem skal du trene?</h1>
+      ${merke(17)}
+      <h1 style="margin-top:18px">Hvem skal du trene?</h1>
       <p class="svak">Fem spørsmål. De brukes til å sette opp dagslistene og regne ut godbitbudsjettet.</p>
     </div>
     <label for="n">Hva heter hunden?</label>
@@ -423,6 +504,7 @@ function visHjem() {
 
   vis(`<div class="side">
     <div class="topp">
+      <div style="margin-bottom:18px">${merke(15)}</div>
       <div class="eyebrow">${new Date().toLocaleDateString('no-NO', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
       <h1>Fem korte økter</h1>
       <p class="svak">${gjort} av 5 gjort i dag${gjort === 5 ? ' — ferdig.' : '. Hver økt tar to–tre minutter.'}</p>
@@ -662,6 +744,10 @@ function visVerktoy() {
     <p class="svak" style="font-size:.88rem">${S.logg.length} økter logget.</p>
     <button class="knapp knapp--sekundaer" id="eksport" style="margin-bottom:10px">Last ned dataene mine</button>
     <button class="knapp knapp--sekundaer" id="nullstill">Nullstill alt</button>
+    <div class="bunnmerke">
+      ${merke(15)}
+      <div class="byline">${MERKE.byline}</div>
+    </div>
   </div>`);
 
   document.getElementById('g').onchange = e => {
@@ -698,7 +784,7 @@ function visFeil(id) {
 
 /* ---- ruting ---- */
 function rute() {
-  if (!S.hund) return visOnboarding();
+  if (!S.hund) return velkommen ? visVelkomst() : visOnboarding();
   ({ hjem: visHjem, bibliotek: visBibliotek, trener: visTrener, verktoy: visVerktoy }[fane] || visHjem)();
 }
 app.addEventListener('click', e => {
