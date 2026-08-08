@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1B211A">
+<meta name="description" content="Fem korte treningsøkter om dagen. Belønningsbasert hundetrening som gjør deg til en bedre trener.">
+<title>Fem om dagen</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="ikon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ---- tokens ---- */
+:root{
+  --jord:#1B211A;
+  --skog:#2B342A;
+  --mose:#4A5844;
+  --lav:#DFE4D8;
+  --papir:#F1F4EC;
+  --oker:#D8A032;
+  --oker-lys:#F0C86A;
+  --rolig:#8C95A0;
+  --linje:#C3CBBA;
+  --tekst:#1B211A;
+  --tekst-svak:#5C665A;
+  --radius:14px;
+  --maks:560px;
+  --f-disp:'Bricolage Grotesque','Archivo',system-ui,sans-serif;
+  --f-tekst:'Inter',system-ui,-apple-system,sans-serif;
+  --f-tall:ui-monospace,'SF Mono',Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:var(--f-tekst);background:var(--papir);color:var(--tekst);
+  font-size:16px;line-height:1.55;overscroll-behavior-y:none;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:3px solid var(--oker);outline-offset:2px;border-radius:4px}
+
+/* ---- skjelett ---- */
+#app{max-width:var(--maks);margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+.side{flex:1;padding:20px 18px 96px}
+.side--mork{background:var(--jord);color:var(--lav);min-height:100vh;padding-bottom:24px}
+
+h1,h2,h3,.disp{font-family:var(--f-disp);letter-spacing:-.02em;line-height:1.08}
+h1{font-size:2.15rem;font-weight:800}
+h2{font-size:1.35rem;font-weight:700;margin-bottom:10px}
+h3{font-size:1.05rem;font-weight:700}
+p{margin-bottom:12px}
+.svak{color:var(--tekst-svak)}
+.side--mork .svak{color:#9AA695}
+
+.eyebrow{
+  font-family:var(--f-tall);font-size:.7rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tekst-svak);margin-bottom:6px;
+}
+.side--mork .eyebrow{color:var(--oker)}
+
+.topp{margin-bottom:22px}
+.rad{display:flex;gap:10px;align-items:center}
+.mellom{justify-content:space-between}
+
+/* ---- knapper ---- */
+.knapp{
+  display:block;width:100%;padding:15px 18px;border-radius:var(--radius);
+  background:var(--jord);color:var(--papir);font-weight:600;text-align:center;
+  transition:transform .12s ease,background .12s ease;
+}
+.knapp:active{transform:scale(.985)}
+.knapp--sekundaer{background:transparent;color:var(--tekst);border:1.5px solid var(--linje)}
+.knapp--liten{padding:9px 14px;font-size:.85rem;width:auto;border-radius:10px}
+.knapp[disabled]{opacity:.4;cursor:default}
+
+/* ---- kort ---- */
+.kort{
+  background:#fff;border:1px solid var(--linje);border-radius:var(--radius);
+  padding:16px;margin-bottom:12px;display:block;width:100%;text-align:left;
+}
+.kort--klikk:active{transform:scale(.99)}
+.kort--laast{opacity:.5;background:transparent}
+.kort__topp{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.kort__merke{
+  font-family:var(--f-tall);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--tekst-svak);white-space:nowrap;
+}
+.kort h3{margin-bottom:3px}
+.kort p{font-size:.9rem;color:var(--tekst-svak);margin:0}
+
+.merkelapp{
+  display:inline-block;font-family:var(--f-tall);font-size:.64rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:3px 8px;border-radius:100px;
+  background:var(--lav);color:var(--tekst-svak);
+}
+.merkelapp--ny{background:var(--oker);color:var(--jord)}
+.merkelapp--moro{background:#DCE6C8}
+
+/* ---- SIGNATUR: tellestripa ---- */
+.telling{margin:26px 0 20px}
+.telling__grense{
+  position:relative;height:14px;
+  font-family:var(--f-tall);font-size:.62rem;letter-spacing:.1em;color:var(--oker);
+}
+.telling__grense span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.telling__rad{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;position:relative}
+.rute{
+  height:52px;border-radius:6px;border:1.5px solid var(--mose);background:transparent;
+  transition:background .16s ease,transform .16s ease;
+}
+.side--mork .rute{border-color:#3F4C3C}
+.rute--fylt{background:var(--oker);border-color:var(--oker);animation:pop .18s ease}
+@keyframes pop{from{transform:scaleY(.4)}to{transform:scaleY(1)}}
+.strek{
+  position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--oker);
+  opacity:.85;pointer-events:none;
+}
+.bom-rad{display:flex;gap:5px;margin-top:10px;min-height:12px;align-items:center}
+.bom-prikk{width:9px;height:9px;border-radius:50%;background:var(--rolig)}
+.bom-merke{
+  font-family:var(--f-tall);font-size:.68rem;color:var(--rolig);
+  letter-spacing:.08em;margin-left:4px;
+}
+.telling__tall{
+  font-family:var(--f-tall);font-size:.8rem;color:var(--oker);
+  letter-spacing:.08em;margin-top:12px;
+}
+
+/* ---- øktknapper ---- */
+.okt-knapper{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:8px}
+.stor{
+  padding:26px 12px;border-radius:18px;font-family:var(--f-disp);
+  font-size:1.5rem;font-weight:800;letter-spacing:-.01em;
+  transition:transform .1s ease;
+}
+.stor:active{transform:scale(.96)}
+.stor--ja{background:var(--oker);color:var(--jord)}
+.stor--bom{background:transparent;border:1.5px solid var(--mose);color:var(--lav);font-size:1.1rem}
+
+.klokke{
+  font-family:var(--f-tall);font-size:1.05rem;text-align:center;
+  margin-top:16px;color:#9AA695;letter-spacing:.1em;
+}
+.klokke--over{color:var(--oker-lys)}
+
+.instruks{
+  background:var(--skog);border-radius:var(--radius);padding:16px;margin-bottom:14px;
+  font-size:1.02rem;line-height:1.55;
+}
+.kriterium{
+  font-family:var(--f-tall);font-size:.78rem;letter-spacing:.05em;
+  color:var(--oker);padding:12px 0;border-top:1px solid #3F4C3C;
+}
+details{margin-bottom:10px}
+summary{
+  font-family:var(--f-tall);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+  color:#9AA695;cursor:pointer;padding:8px 0;list-style:none;
+}
+summary::-webkit-details-marker{display:none}
+summary::after{content:" +"}
+details[open] summary::after{content:" −"}
+details p{font-size:.92rem;color:#C6CFC0}
+
+/* ---- resultat ---- */
+.dom{border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.dom--opp{background:var(--oker);color:var(--jord)}
+.dom--bli{background:var(--lav)}
+.dom--ned{background:#E4E7EC}
+.dom h2{margin-bottom:6px}
+.dom p{margin:0;font-size:.95rem}
+
+/* ---- stegliste ---- */
+.steg{
+  border-left:2px solid var(--linje);padding:0 0 20px 18px;position:relative;
+}
+.steg:last-child{padding-bottom:0}
+.steg::before{
+  content:"";position:absolute;left:-6px;top:5px;width:10px;height:10px;
+  border-radius:50%;background:var(--linje);
+}
+.steg--klar::before{background:var(--oker)}
+.steg--klar{border-left-color:var(--oker)}
+.steg--naa::before{background:var(--jord);box-shadow:0 0 0 4px var(--oker-lys)}
+.steg__nr{font-family:var(--f-tall);font-size:.68rem;letter-spacing:.12em;color:var(--tekst-svak)}
+.steg h3{font-size:.98rem;margin:2px 0 4px}
+.steg p{font-size:.88rem;color:var(--tekst-svak);margin:0}
+
+/* ---- skjema ---- */
+label{display:block;font-size:.82rem;font-weight:600;margin:16px 0 6px}
+input,select{
+  width:100%;padding:13px 14px;border:1.5px solid var(--linje);border-radius:11px;
+  font:inherit;background:#fff;color:var(--tekst);
+}
+.valg{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px}
+.valg button{
+  padding:12px 8px;border:1.5px solid var(--linje);border-radius:11px;background:#fff;
+  font-size:.88rem;font-weight:500;
+}
+.valg button[aria-pressed="true"]{background:var(--jord);color:var(--papir);border-color:var(--jord)}
+
+/* ---- budsjett ---- */
+.tall-stor{font-family:var(--f-disp);font-size:2.6rem;font-weight:800;line-height:1}
+.maaler{height:12px;border-radius:100px;background:var(--lav);overflow:hidden;margin:12px 0 6px}
+.maaler__fyll{height:100%;background:var(--oker);transition:width .4s ease}
+.maaler__fyll--over{background:var(--rolig)}
+
+/* ---- bunnmeny ---- */
+.meny{
+  position:fixed;bottom:0;left:0;right:0;max-width:var(--maks);margin:0 auto;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  background:var(--papir);border-top:1px solid var(--linje);
+  padding-bottom:env(safe-area-inset-bottom);z-index:10;
+}
+.meny button{
+  padding:11px 4px 13px;font-size:.68rem;font-weight:600;letter-spacing:.03em;
+  color:var(--tekst-svak);display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.meny button[aria-current="page"]{color:var(--tekst)}
+.meny .ikon{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+.tom{text-align:center;padding:36px 20px;color:var(--tekst-svak)}
+.varsel{
+  background:#EDEFE8;border-left:3px solid var(--oker);border-radius:0 10px 10px 0;
+  padding:13px 15px;font-size:.9rem;margin-bottom:14px;
+}
+.henvis{background:#E4E7EC;border-left-color:var(--rolig)}
+ul.punkt{margin:0 0 14px 18px}
+ul.punkt li{margin-bottom:7px;font-size:.94rem}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const DATA = {"versjon": "1.0", "metode": "Positiv forsterkning. Ingen straff, ingen korrigering. Feil besvares med pause og lettere steg.", "kategorier": {"grunnlag": "Byggesteiner alt annet hviler på", "hverdag": "Hverdagslydighet og trygghet", "triks": "Moro, mestring og relasjon", "aktivisering": "Mental utmatting og naturlige behov"}, "godbitverdi": {"lav": "Tørrfôr, hundekjeks. Til rolige rom uten distraksjon.", "middels": "Ost, tørket kylling, hundepølse. Til nye steg og lett distraksjon.", "hoy": "Lever, kokt kylling, pølse, leverpostei på skje. Til innkalling, høy distraksjon og alt som er alvor."}, "ovelser": [{"id": "kontakt", "navn": "Kontakt", "kategori": "grunnlag", "nivaa": 1, "forutsetninger": [], "godbitverdi": "lav", "beskrivelse": "Hunden ser på deg av eget initiativ, og snur hodet når du sier navnet.", "hvorfor": "Dette er den eneste øvelsen alt annet hviler på. En hund som ikke ser på deg, kan ikke lære noe av deg. Tren denne først, og tren den alltid.", "steg": [{"nr": 1, "type": "innlaering", "tittel": "Belønn det frivillige blikket", "instruksjon": "Stå stille i et kjedelig rom med hunden i bånd. Si ingenting. Gjør ingenting. I det sekundet hunden ser opp på deg: marker med «ja» og gi godbit.", "kriterium": "Hunden ser på deg innen 30 sekunder, 8 av 10 ganger.", "vanligFeil": "Å lage lyd eller vifte med godbiten for å få fram blikket. Da trener du hunden i å reagere på lyden din, ikke i å ta initiativ selv. Vent den ut — det tar lengre tid første gang enn du tror.", "tips": "De første gangene kan det ta et halvt minutt. Etter fem-seks repetisjoner kommer blikket nesten umiddelbart."}, {"nr": 2, "type": "innlaering", "tittel": "Legg på navnet", "instruksjon": "Nå som blikket kommer raskt, si hundens navn rett FØR du regner med at hodet snur. Marker i det øyeblikket hodet beveger seg mot deg.", "kriterium": "Hodet snur innen to sekunder etter navnet, 8 av 10.", "vanligFeil": "Å legge på navnet for tidlig, før atferden er pålitelig. Da lærer hunden at navnet er bakgrunnsstøy. Regelen er: navnet legges på når du kan forutsi atferden, ikke når du håper på den.", "tips": "Si navnet én gang. Aldri «Rex, Rex, REX». Kom det ingen respons, er steget for vanskelig — gå tilbake."}, {"nr": 3, "type": "innlaering", "tittel": "Kontakt med noe å se på", "instruksjon": "Legg en godbit synlig på gulvet et par meter unna. Si navnet. Marker blikket som kommer tilbake til deg, og belønn fra hånda.", "kriterium": "Hunden velger deg framfor godbiten på gulvet, 8 av 10.", "vanligFeil": "Å la hunden få godbiten på gulvet når den mislykkes. Dekk den med foten i stedet, vent, og marker blikket når det kommer."}, {"nr": 4, "type": "generalisering", "tittel": "Nytt sted", "instruksjon": "Samme øvelse som steg 2, men i hagen, i oppgangen, på en stille parkeringsplass. Ett nytt sted per økt.", "kriterium": "8 av 10 på minst tre forskjellige steder.", "vanligFeil": "Å tro at hunden «kan det» fordi det satt på kjøkkenet. Hunder generaliserer dårlig — for dem er sitt på kjøkkenet og sitt i parken to helt ulike øvelser."}, {"nr": 5, "type": "generalisering", "tittel": "Distraksjon på avstand", "instruksjon": "Utendørs med noe interessant i synsfeltet — folk, en annen hund, dueflokk. Start så langt unna at hunden fortsatt klarer å høre deg.", "kriterium": "8 av 10 på den avstanden du valgte.", "vanligFeil": "For kort avstand. Klarer ikke hunden det, er svaret alltid å flytte seg lenger unna — ikke å gjenta kommandoen høyere."}, {"nr": 6, "type": "fading", "tittel": "Trapp ned godbitene", "instruksjon": "Gå over til å belønne omtrent annenhver gang, tilfeldig valgt. De gangene du ikke gir mat, gi ros eller en klapp. Ta godbiten fra lomma, ikke fra en hånd hunden ser.", "kriterium": "8 av 10 opprettholdes med belønning på cirka halvparten.", "vanligFeil": "Å kutte godbitene helt, brått. Uforutsigbar belønning gir sterkere atferd enn belønning hver gang — men ingen belønning gir ingen atferd."}]}, {"id": "sitt", "navn": "Sitt", "kategori": "hverdag", "nivaa": 1, "forutsetninger": ["kontakt"], "godbitverdi": "lav", "beskrivelse": "Hunden setter seg på ord, og blir sittende til du sier fra.", "hvorfor": "Sitt er sjelden målet i seg selv. Verdien ligger i at det er svaret på et dusin hverdagsproblemer: hopping på gjester, maset ved matskåla, kaoset i døra.", "steg": [{"nr": 1, "type": "innlaering", "tittel": "Lokk fram sitt", "instruksjon": "Hold en godbit rett foran hundens nese, før den sakte bakover og litt opp over hodet. Bakenden går ned av seg selv. Marker i det den treffer gulvet.", "kriterium": "Bakenden i gulvet innen tre sekunder, 8 av 10.", "vanligFeil": "Å holde godbiten for høyt — da hopper hunden etter den. Hold den så nær snuten at den nesten berører.", "tips": "Er hunden i bånd, tråkk lett på båndet så den ikke kan rygge unna."}, {"nr": 2, "type": "fading", "tittel": "Fjern godbiten fra hånda", "instruksjon": "Gjør nøyaktig samme håndbevegelse, men med tom hånd. Godbiten ligger i den andre hånda eller i lomma, og kommer etter markøren.", "kriterium": "8 av 10 med tom hånd.", "vanligFeil": "Å vente for lenge med dette steget. Etter tre-fire lokkede repetisjoner skal maten ut av hånda — ellers blir hånden signalet, og du sitter med en hund som bare lystrer når du har mat."}, {"nr": 3, "type": "innlaering", "tittel": "Legg på ordet", "instruksjon": "Si «sitt» én gang, gjør så håndbevegelsen. Etter hvert som det sitter, gjør bevegelsen mindre og mindre.", "kriterium": "Hunden setter seg på ordet alene, 8 av 10.", "vanligFeil": "Å si ordet samtidig med bevegelsen. Ordet skal komme først og alene, ellers ser hunden bare hånda."}, {"nr": 4, "type": "innlaering", "tittel": "Varighet", "instruksjon": "Vent ett sekund før du markerer. Så to. Så fire. Bygg opp mot ti sekunder. Går det i stykker, halver tiden.", "kriterium": "Ti sekunder sittende, 8 av 10.", "vanligFeil": "Å øke tiden jevnt oppover. Bland i stedet: 3 sek, 8 sek, 2 sek, 6 sek. Forutsigbar økning lærer hunden å reise seg akkurat når det begynner å bli vanskelig."}, {"nr": 5, "type": "generalisering", "tittel": "Nye steder og posisjoner", "instruksjon": "Tren sitt mens du står ved siden av, bak, med ryggen til, sittende i sofaen. Og på minst tre nye steder.", "kriterium": "8 av 10 i tre nye situasjoner.", "vanligFeil": "Å bare stå rett foran hunden. Mange hunder kan sitt kun når eieren står ansikt til ansikt med dem."}, {"nr": 6, "type": "fading", "tittel": "Inn i hverdagen", "instruksjon": "Be om sitt før matskåla settes ned, før båndet festes, før døra åpnes. Belønningen er det som skjer etterpå — maten, turen, friheten. Ikke godbit.", "kriterium": "Hunden setter seg i tre faste hverdagssituasjoner uten godbit.", "tips": "Dette er livsbelønninger, og de er gull verdt. De koster ingenting og finnes overalt."}]}, {"id": "dekk", "navn": "Dekk", "kategori": "hverdag", "nivaa": 2, "forutsetninger": ["sitt"], "godbitverdi": "middels", "beskrivelse": "Hunden legger seg ned på ord og blir liggende.", "hvorfor": "Dekk er den beste hvileposisjonen. En hund som kan ligge rolig i tjue minutter er velkommen på kafé, hos svigermor og under middagen.", "steg": [{"nr": 1, "type": "innlaering", "tittel": "Lokk ned", "instruksjon": "Start med hunden sittende. Før godbiten rett ned mellom framlabbene og deretter litt framover langs gulvet. Marker i det albuene treffer bakken.", "kriterium": "Helt ned, 8 av 10.", "vanligFeil": "Å trekke godbiten framover for tidlig — da reiser hunden seg og går etter. Rett ned først, så fram.", "tips": "På glatt gulv nekter mange hunder. Legg et teppe eller tren på gress."}, {"nr": 2, "type": "innlaering", "tittel": "Belønn i posisjon", "instruksjon": "Gi godbiten mellom hundens framlabber mens den ligger — ikke i brysthøyde.", "kriterium": "Hunden blir liggende mens den spiser, 8 av 10.", "vanligFeil": "Å mate høyt. Mater du oppover, trener du hunden i å reise seg. Hvor du plasserer maten former posisjonen."}, {"nr": 3, "type": "fading", "tittel": "Tom hånd, så ordet", "instruksjon": "Samme bevegelse med tom hånd. Når det sitter, si «dekk» først og gjør bevegelsen mindre for hver repetisjon.", "kriterium": "Legger seg på ordet alene, 8 av 10."}, {"nr": 4, "type": "innlaering", "tittel": "Varighet", "instruksjon": "Bygg fra fem sekunder mot to minutter. Slipp inn en godbit av og til mens hunden ligger, uten å si noe — det belønner det å bli liggende.", "kriterium": "To minutter, 8 av 10.", "vanligFeil": "Å bare markere når hunden reiser seg. Belønn underveis, mens atferden pågår."}, {"nr": 5, "type": "generalisering", "tittel": "Dekk med bevegelse rundt", "instruksjon": "Ta ett skritt til siden mens hunden ligger. Så to. Gå rundt den. Gå ut av rommet i to sekunder.", "kriterium": "Blir liggende mens du beveger deg, 8 av 10.", "vanligFeil": "For store sprang. Ett skritt om gangen — dette er distanse, og distanse er den vanskeligste av de tre D-ene."}, {"nr": 6, "type": "fading", "tittel": "Variabel belønning", "instruksjon": "Belønn uforutsigbart. Noen ganger etter ti sekunder, noen ganger etter to minutter, noen ganger ikke i det hele tatt.", "kriterium": "Atferden holder med belønning på cirka en tredel."}]}, {"id": "innkalling", "navn": "Innkalling", "kategori": "hverdag", "nivaa": 2, "forutsetninger": ["kontakt"], "godbitverdi": "hoy", "beskrivelse": "Hunden kommer til deg i full fart, uansett hva den holder på med.", "hvorfor": "Dette er den eneste øvelsen som kan redde livet til hunden din. Behandle den deretter — bruk alltid din beste godbit, og ødelegg den aldri.", "ufravikeligeRegler": ["Kall aldri hunden til deg for å gjøre noe den misliker — bad, negleklipp, hjem fra parken. Gå og hent den i stedet.", "Kall aldri hvis du ikke kan følge opp. Én mislykket innkalling koster ti vellykkede.", "Kall aldri i sinne. En hund som forbinder navnet sitt med en irritert eier, kommer saktere neste gang.", "Belønn alltid. Livet ut. Denne øvelsen fades aldri helt."], "steg": [{"nr": 1, "type": "innlaering", "tittel": "Ladet ord innendørs", "instruksjon": "Stå to meter fra hunden. Si «kom» i lys, glad stemme, og gi tre-fire godbiter etter hverandre når den kommer. Ikke én — fest.", "kriterium": "Kommer umiddelbart, 8 av 10.", "vanligFeil": "Nøytralt tonefall. Innkalling skal høres ut som verdens beste tilbud, ikke som en beskjed.", "tips": "Velg et ord du ikke har brukt før og brent. Har «kom» allerede blitt ignorert hundre ganger, bruk «hit» i stedet."}, {"nr": 2, "type": "innlaering", "tittel": "Løp bakover", "instruksjon": "Si ordet og løp noen skritt bakover mens hunden kommer. Marker og belønn når den når deg.", "kriterium": "Hunden kommer i fart, 8 av 10.", "tips": "Å bevege seg bort fra hunden utløser jaktinstinkt. Å gå mot den bremser den."}, {"nr": 3, "type": "innlaering", "tittel": "Grip halsbåndet", "instruksjon": "Når hunden kommer, ta rolig i halsbåndet FØR du gir godbiten. Hver gang.", "kriterium": "Hunden lar deg ta halsbåndet uten å vike unna, 8 av 10.", "vanligFeil": "Å hoppe over dette. Uten det får du hunden som kommer nesten helt fram og danser unna i siste sekund — verdiløst når det haster."}, {"nr": 4, "type": "generalisering", "tittel": "Utendørs i langline", "instruksjon": "Ti meter langline på et rolig sted. Vent til hunden er opptatt med noe mildt interessant, kall, og fest.", "kriterium": "8 av 10 med linen slakk hele veien.", "vanligFeil": "Å bruke linen til å dra hunden inn. Linen er en sikkerhet mot rømning, ikke et styringsredskap."}, {"nr": 5, "type": "generalisering", "tittel": "Kall, slipp, kall igjen", "instruksjon": "Kall hunden inn, belønn, og send den ut igjen med «lek videre». Gjenta tre-fire ganger på en tur.", "kriterium": "8 av 10 med økende distraksjon.", "tips": "Dette er det viktigste enkelttiltaket mot at innkalling betyr at moroa er slutt. Nitti prosent av innkallingene dine bør ende med at hunden får fortsette."}, {"nr": 6, "type": "generalisering", "tittel": "Ekte distraksjon", "instruksjon": "Andre hunder, joggere, lukt av vilt. Start på den avstanden hunden faktisk klarer, ikke den du skulle ønske.", "kriterium": "8 av 10 på valgt avstand, deretter kortere avstand.", "vanligFeil": "Å teste innkalling før den er ferdig bygget. Er du i tvil om hunden kommer, ikke kall — gå og hent den."}]}, {"id": "vent", "navn": "Vent", "kategori": "hverdag", "nivaa": 2, "forutsetninger": ["sitt"], "godbitverdi": "middels", "beskrivelse": "Hunden blir værende der den er til du gir et frigjøringsord.", "hvorfor": "Vent er impulskontroll i praksis. Den hindrer hunden i å stupe ut av bilen i trafikken eller ut døra når posten kommer.", "steg": [{"nr": 1, "type": "innlaering", "tittel": "Frigjøringsordet først", "instruksjon": "Lær hunden hva som avslutter en øvelse, før du lærer den å vente. Sett hunden, si «værsågod» i lett tone og kast en godbit så den må reise seg.", "kriterium": "Hunden reiser seg på ordet, 8 av 10.", "vanligFeil": "Å ikke ha et frigjøringsord i det hele tatt. Uten det vet hunden aldri når øvelsen er slutt, og bestemmer selv."}, {"nr": 2, "type": "innlaering", "tittel": "Ett sekund", "instruksjon": "Sitt, si «vent», tell til ett, marker, si frigjøringsordet.", "kriterium": "8 av 10.", "tips": "Start latterlig lett. Alle bygger denne øvelsen for fort."}, {"nr": 3, "type": "innlaering", "tittel": "Ett skritt bort", "instruksjon": "Ta ett skritt bakover, kom tilbake, marker, frigjør. Øk til to, tre, fem skritt. Én D om gangen — her jobber du kun med distanse, hold tiden kort.", "kriterium": "Fem skritt, 8 av 10.", "vanligFeil": "Å øke avstand og varighet samtidig. Da faller den fra hverandre, og du vet ikke hvorfor."}, {"nr": 4, "type": "generalisering", "tittel": "Vent ved døra", "instruksjon": "Hunden venter mens du legger hånda på dørhåndtaket. Så mens du vrir. Så mens døra åpnes en centimeter. Lukk igjen ved hvert feilsteg.", "kriterium": "Døra helt åpen uten at hunden går, 8 av 10.", "tips": "Belønningen her er å få gå ut. Bruk livsbelønningen — den er sterkere enn mat i akkurat denne situasjonen."}, {"nr": 5, "type": "generalisering", "tittel": "Vent i bilen", "instruksjon": "Samme prosedyre med bagasjeluka. Hunden går ikke ut før frigjøringsordet, uansett hvor lenge luka har stått åpen.", "kriterium": "8 av 10 med luka åpen i ti sekunder."}, {"nr": 6, "type": "fading", "tittel": "Hverdagsvane", "instruksjon": "Bruk vent hver gang dere skal ut av bil eller dør, resten av hundens liv. Ingen godbit — friheten er lønna.", "kriterium": "Automatisk vent i to faste situasjoner."}]}, {"id": "gaa-pent", "navn": "Gå pent i bånd", "kategori": "hverdag", "nivaa": 3, "forutsetninger": ["kontakt"], "godbitverdi": "hoy", "beskrivelse": "Hunden går med slakt bånd ved siden av deg.", "hvorfor": "Dette er den vanskeligste hverdagsøvelsen og den folk spør mest om. Årsaken er enkel: hver eneste tur der hunden drar og likevel kommer framover, er en treningsøkt i å dra.", "viktig": "Skill mellom turer og treningsøkter. På treningsøkter kommer dere kanskje femti meter på tre minutter, og det er meningen. Turer der hunden må få gå: bruk sele og godta at det ikke er trening.", "steg": [{"nr": 1, "type": "innlaering", "tittel": "Belønn posisjonen, stillestående", "instruksjon": "Stå stille. Hver gang hunden er ved siden av deg med slakt bånd, marker og gi godbit ved sømmen på buksa di.", "kriterium": "Hunden oppsøker posisjonen selv, 8 av 10.", "tips": "Mat alltid i posisjonen du vil ha. Mater du foran deg, lærer hunden å gå foran."}, {"nr": 2, "type": "innlaering", "tittel": "Tre skritt", "instruksjon": "Gå tre skritt. Er båndet slakt hele veien: marker og belønn. Strammes det, stopp helt opp og vent til hunden slakker.", "kriterium": "Tre skritt med slakt bånd, 8 av 10.", "vanligFeil": "Å gå videre mens båndet er stramt. Det er den ene tingen som opprettholder drainga — hunden lærer at strammt bånd fungerer."}, {"nr": 3, "type": "innlaering", "tittel": "Ti skritt", "instruksjon": "Bygg fra tre til ti skritt. Belønn underveis, ikke bare på slutten.", "kriterium": "Ti skritt, 8 av 10."}, {"nr": 4, "type": "innlaering", "tittel": "Vendinger", "instruksjon": "Snu 180 grader mens dere går. Hunden som følger med, får godbit. Bytt retning ofte og uforutsigbart.", "kriterium": "Hunden følger vendingen uten at båndet strammes, 8 av 10.", "tips": "Uforutsigbar retning gjør deg interessant. En eier som alltid går rett fram er lett å ignorere."}, {"nr": 5, "type": "generalisering", "tittel": "Ut i verden", "instruksjon": "Flytt til fortauet, så til et sted med litt folk. Kort avstand til distraksjonen betyr kortere økt.", "kriterium": "Tjue skritt på tre ulike steder, 8 av 10.", "vanligFeil": "Å hoppe rett til byen. Klarer ikke hunden fortauet, klarer den ikke torget."}, {"nr": 6, "type": "fading", "tittel": "Trapp ned", "instruksjon": "Gå fra godbit hvert tredje skritt til hvert tiende, deretter tilfeldig. Bruk «nå kan du snuse» som belønning — det er ofte sterkere enn mat.", "kriterium": "Hundre meter med slakt bånd og to-tre belønninger."}]}, {"id": "plass", "navn": "Gå til plassen", "kategori": "hverdag", "nivaa": 3, "forutsetninger": ["dekk"], "godbitverdi": "middels", "beskrivelse": "Hunden går til matta si og legger seg der på ord.", "hvorfor": "Den mest undervurderte øvelsen som finnes. Én kommando løser gjester i døra, middagstigging, barnebursdag og alt annet kaos — og gir hunden et forutsigbart sted å slappe av.", "steg": [{"nr": 1, "type": "innlaering", "tittel": "Matta er gull", "instruksjon": "Legg ut matta. Hver gang hunden setter en labb på den: marker og kast godbiten på matta. Si ingenting.", "kriterium": "Hunden går til matta av seg selv, 8 av 10.", "tips": "Kast alltid belønningen på matta, aldri til hunden. Da bygger du verdien i selve stedet."}, {"nr": 2, "type": "innlaering", "tittel": "Fire labber, så dekk", "instruksjon": "Hev kriteriet: bare fire labber teller. Deretter bare dekk på matta.", "kriterium": "Legger seg på matta uten kommando, 8 av 10."}, {"nr": 3, "type": "innlaering", "tittel": "Legg på ordet", "instruksjon": "Si «plass» rett før hunden går dit. Etter hvert kan du si det fra lenger unna.", "kriterium": "Går til matta på ord fra tre meter, 8 av 10."}, {"nr": 4, "type": "innlaering", "tittel": "Varighet på matta", "instruksjon": "Bygg fra ett til fem minutter. Slipp godbiter ned på matta med jevne mellomrom uten å si noe.", "kriterium": "Fem minutter, 8 av 10.", "tips": "Et tyggebein på matta gjør de første langvarige øktene mye lettere."}, {"nr": 5, "type": "generalisering", "tittel": "Med noe som skjer", "instruksjon": "Send hunden på plass mens du lager mat, mens noen ringer på, mens familien spiser. Én distraksjon om gangen.", "kriterium": "Blir liggende gjennom tre ulike hverdagssituasjoner.", "vanligFeil": "Å teste med gjester før matta er solid uten distraksjon."}, {"nr": 6, "type": "generalisering", "tittel": "Matta blir portabel", "instruksjon": "Ta med matta til venner, på hytta, på kafé. Samme matte, nytt sted.", "kriterium": "8 av 10 på to steder utenfor hjemmet.", "tips": "Her betaler øvelsen seg tilbake. Matta blir en trygg, kjent øy uansett hvor dere er."}]}, {"id": "gi-labb", "navn": "Gi labb", "kategori": "triks", "nivaa": 1, "forutsetninger": [], "godbitverdi": "lav", "beskrivelse": "Hunden legger labben i hånda di.", "hvorfor": "Rask mestringsfølelse for begge parter, og en nyttig sidegevinst: hunder som er vant til å gi labb er mye lettere å tørke poter på og klippe negler.", "steg": [{"nr": 1, "type": "innlaering", "tittel": "Godbit i knyttneven", "instruksjon": "Hunden sitter. Hold en godbit i lukket hånd foran den. Vent. De fleste hunder snuser, slikker, og prøver til slutt med labben. Marker i det labben treffer hånda.", "kriterium": "Labb på hånda innen ti sekunder, 8 av 10.", "vanligFeil": "Å løfte labben for hunden. Da lærer den ingenting — den må gjøre valget selv.", "tips": "Prøver hunden bare med snuten i et helt minutt, kile den lett på baksiden av labben."}, {"nr": 2, "type": "fading", "tittel": "Åpen, tom hånd", "instruksjon": "Hold fram en åpen, tom hånd. Marker labben, belønn fra den andre hånda.", "kriterium": "8 av 10 med tom hånd."}, {"nr": 3, "type": "innlaering", "tittel": "Legg på ordet", "instruksjon": "Si «labb» rett før du holder fram hånda.", "kriterium": "8 av 10 på ordet."}, {"nr": 4, "type": "generalisering", "tittel": "Begge labber", "instruksjon": "Lær «andre labb» som eget ord med den andre hånda. Bland de to.", "kriterium": "Riktig labb, 8 av 10.", "tips": "Dette er vanskeligere enn det høres ut, og en fin øvelse i presisjon for deg som trener."}, {"nr": 5, "type": "fading", "tittel": "Overfør til stell", "instruksjon": "Be om labb, hold den rolig i tre sekunder, belønn. Bygg opp til at du kan tørke og undersøke poten.", "kriterium": "Holder labben rolig i fem sekunder, 8 av 10."}]}, {"id": "snurr", "navn": "Snurr", "kategori": "triks", "nivaa": 2, "forutsetninger": [], "godbitverdi": "middels", "beskrivelse": "Hunden snurrer en hel runde rundt sin egen akse.", "hvorfor": "Ren moro, god kroppsbevissthet, og en perfekt øvelse for å trene DEG i å fade lokking. Den er også et fint verktøy for å riste av seg spenning på tur.", "steg": [{"nr": 1, "type": "innlaering", "tittel": "Halv runde", "instruksjon": "Hunden står. Hold godbiten ved nesa og før den sakte i en halvsirkel rundt hunden. Marker halvveis.", "kriterium": "Følger hånda en halv runde, 8 av 10.", "vanligFeil": "Å gå for fort. Mister hunden nesekontakten med hånda, stopper den."}, {"nr": 2, "type": "innlaering", "tittel": "Hel runde", "instruksjon": "Fullfør sirkelen før du markerer.", "kriterium": "Hel runde, 8 av 10."}, {"nr": 3, "type": "fading", "tittel": "Krymp bevegelsen", "instruksjon": "Gjør sirkelen med tom hånd. Deretter mindre for hver økt — stor sirkel, halv, en liten sirkel med pekefingeren.", "kriterium": "Hel runde på liten fingerbevegelse, 8 av 10.", "tips": "Dette er øvelsen som lærer deg fading bedre enn noen annen. Går det i stykker, er sirkelen din for liten — gjør den litt større igjen."}, {"nr": 4, "type": "innlaering", "tittel": "Legg på ordet", "instruksjon": "Si «snurr», vent et halvt sekund, gjør fingerbevegelsen. Fade bevegelsen helt bort.", "kriterium": "8 av 10 på ordet alene."}, {"nr": 5, "type": "innlaering", "tittel": "Andre veien", "instruksjon": "Bygg samme triks motsatt vei med et nytt ord, f.eks. «vri».", "kriterium": "Riktig retning, 8 av 10.", "tips": "De fleste hunder har en klart foretrukket side. Å trene den svake veien er god fysioterapi."}]}, {"id": "godbitsok", "navn": "Godbitsøk", "kategori": "aktivisering", "nivaa": 1, "forutsetninger": [], "godbitverdi": "middels", "beskrivelse": "Hunden bruker nesa til å finne godbiter du har gjemt.", "hvorfor": "Femten minutter nesearbeid sliter ut en hund mer enn en times tur. Øvelsen passer alle — valper, gamle hunder, skadede hunder, redde hunder — og den bygger selvtillit hos usikre individer.", "steg": [{"nr": 1, "type": "innlaering", "tittel": "Synlige godbiter", "instruksjon": "Hold hunden. Kast fem-seks godbiter på gulvet mens den ser på. Slipp med et søkeord, f.eks. «søk».", "kriterium": "Finner alle innen ett minutt, 8 av 10.", "vanligFeil": "Å hjelpe ved å peke. La hunden løse det selv — poenget er at den skal lære å stole på nesa."}, {"nr": 2, "type": "innlaering", "tittel": "Halvskjult", "instruksjon": "Legg godbitene bak stolbein, under en pute, i gresset. Hunden ser fortsatt at du gjør det.", "kriterium": "Finner alle innen to minutter, 8 av 10."}, {"nr": 3, "type": "innlaering", "tittel": "Hunden ser ikke", "instruksjon": "Sett hunden i et annet rom mens du gjemmer. Slipp den inn med søkeordet.", "kriterium": "Finner minst fem av seks, 8 av 10."}, {"nr": 4, "type": "generalisering", "tittel": "Større område og høyde", "instruksjon": "Utvid til hele rommet, hagen, en skogkant. Gjem noe i lav høyde — på en stol, i en busk.", "kriterium": "Systematisk søk i hele området, 8 av 10.", "tips": "Høyde er vanskelig. De fleste hunder søker kun i bakkenivå til de lærer noe annet."}, {"nr": 5, "type": "generalisering", "tittel": "Fast rutine", "instruksjon": "Gjør godbitsøk til den faste femte økta på regnværsdager eller når hunden er urolig.", "kriterium": "Brukt som verktøy tre ganger i uka.", "tips": "Trekk godbitene fra dagsrasjonen. Et helt måltid kan spres i hagen i stedet for å serveres i skål."}]}], "trenerstige": [{"id": "timing", "nr": 1, "navn": "Markørtiming", "kort": "Si «ja» i det riktige skjer — ikke etterpå.", "hva": "Markøren er ordet eller klikket som forteller hunden nøyaktig hva den fikk betalt for. «Ja», «bra» eller en klikker. Godbiten kan komme et par sekunder senere; markøren kan ikke.", "hvorfor": "Kommer markøren et halvt sekund for sent, har hunden allerede rukket å gjøre noe annet — og det er den atferden du belønner. Dette er den vanligste enkeltfeilen hos nye trenere, og den forklarer de fleste øvelser som «bare ikke vil sitte».", "ovelse": "Slipp en ball og si «ja» i det den treffer gulvet. Ikke før, ikke etter. Gjør det tjue ganger. Be noen se på og fortelle deg om du er tidlig eller sen.", "videosjekk": "Spol til en repetisjon. Stopp på bildet der du sier «ja». Hva gjør hunden akkurat da? Er den fortsatt i posisjonen du ville ha?"}, {"id": "levering", "nr": 2, "navn": "Hvor du gir godbiten", "kort": "Mat i posisjonen du vil ha.", "hva": "Stedet du leverer godbiten på former atferden like mye som selve belønningen.", "hvorfor": "Mater du i brysthøyde etter et «dekk», reiser hunden seg for å spise — og du har nettopp betalt for å reise seg. Mater du foran deg under båndtrening, lærer hunden å gå foran deg.", "ovelse": "Tren dekk i ti repetisjoner der hver eneste godbit leveres mellom hundens framlabber, helt nede ved gulvet. Legg merke til hvor mye roligere posisjonen blir.", "videosjekk": "Følg hånda di gjennom ti repetisjoner. Havner godbiten på samme sted hver gang?"}, {"id": "en-gang", "nr": 3, "navn": "Én kommando, én gang", "kort": "Si ordet én gang. Skjer det ingenting, er steget for vanskelig.", "hva": "Hvert ord sies én gang, i normalt toneleie. Ingen gjentakelser, ingen økende volum.", "hvorfor": "«Sitt — sitt — SITT» lærer hunden at ordet betyr «gjør dette en gang rundt tredje gang jeg hører det». Manglende respons er informasjon til deg, ikke ulydighet fra hunden: kriteriet var for høyt, eller distraksjonen for nær.", "ovelse": "Tell høyt hvor mange ganger du sier kommandoen i løpet av en økt på ti repetisjoner. Målet er ti.", "videosjekk": "Skru på lyden og bare hør. Hvor mange ord sier du egentlig?"}, {"id": "splitte", "nr": 4, "navn": "Del opp når det butter", "kort": "Under 5 av 10? Gjør steget lettere, ikke lengre.", "hva": "Å splitte betyr å dele et steg i to mindre steg, slik at hunden kan lykkes igjen.", "hvorfor": "Instinktet når noe ikke virker er å gjenta det flere ganger. Det gir bare flere mislykkede repetisjoner, og hunden lærer at øvelsen er ubehagelig. Løsningen er alltid å senke kravet til hunden får rett igjen.", "ovelse": "Ta en øvelse hunden sliter med og skriv ned tre måter å gjøre den lettere på: kortere tid, kortere avstand, mindre distraksjon. Prøv den letteste.", "videosjekk": "Se etter repetisjoner der du ba om det samme to ganger på rad uten å endre noe."}, {"id": "avslutt", "nr": 5, "navn": "Avslutt før hunden vil", "kort": "Stopp mens den fortsatt vil mer.", "hva": "Økta avsluttes på en vellykket repetisjon, mens hunden er ivrig — ikke når den begynner å miste interessen.", "hvorfor": "Det siste som skjedde er det hunden husker best til neste gang. Avslutter du når den er lei, lærer den at øvelsen ender i kjedsomhet. To minutter er nesten alltid nok.", "ovelse": "Sett en alarm på to minutter. Når den går, avslutt uansett hvor bra det gikk.", "videosjekk": "Se på de tre siste repetisjonene. Er hunden like rask der som i de tre første?"}, {"id": "planlegg", "nr": 6, "navn": "Planlegg før du starter", "kort": "Vit hva som teller som riktig, før første repetisjon.", "hva": "Før du henter hunden: bestem hvilket steg du trener, hva kriteriet er, og hvor godbitene ligger.", "hvorfor": "Uklart kriterium gir vinglete belønning. Belønner du litt tilfeldig, lærer hunden ingenting presist — den lærer at det er flaks.", "ovelse": "Si høyt for deg selv, før økta: «Jeg trener dekk, steg 4, kriteriet er ti sekunder liggende.» Hver gang.", "videosjekk": "Ville en fremmed som så videoen kunne gjette hva kriteriet ditt var?"}, {"id": "stille", "nr": 7, "navn": "Vær stille", "kort": "Prat fyller lufta og forstyrrer hunden.", "hva": "Utenom kommandoen og markøren sier du ingenting.", "hvorfor": "Løpende oppmuntring («flink, flink, ja sånn ja, kom igjen da») gjør det umulig for hunden å høre hvilket ord som betyr noe. Stillhet gjør kommandoen din tydelig.", "ovelse": "Kjør en hel økt uten å si annet enn kommandoen og markøren. De fleste synes det er overraskende vanskelig.", "videosjekk": "Tell ordene dine. Trekk fra kommandoene og markørene. Hva står igjen?"}, {"id": "les", "nr": 8, "navn": "Les hunden", "kort": "Snuse, kløe, gjespe og riste er signaler, ikke slurv.", "hva": "Hunder som synes noe er vanskelig eller stressende begynner å snuse i bakken, klø seg, gjespe, slikke seg om munnen eller riste kroppen.", "hvorfor": "Disse signalene kommer før hunden gir opp. Ser du dem, har du fortsatt tid til å gjøre steget lettere. Overser du dem, ender økta dårlig.", "ovelse": "Tren en økt der du kun teller stresstegn i stedet for repetisjoner. Blir det mer enn to, senk kravet.", "videosjekk": "Se etter kroppsristing midt i økta. Det betyr nesten alltid at forrige repetisjon var for vanskelig."}, {"id": "uforutsigbar", "nr": 9, "navn": "Gjør belønningen uforutsigbar", "kort": "Ikke hver gang. Da blir atferden sterkere, ikke svakere.", "hva": "Når en øvelse sitter, går du fra å belønne hver repetisjon til å belønne uforutsigbart — noen ganger, i varierende mengde.", "hvorfor": "Belønning som kommer hver gang er lett å slutte å bry seg om. Uforutsigbar belønning holder atferden i live, på samme måte som spilleautomater holder folk i live. Dette er også svaret på «hunden min lystrer bare når jeg har mat».", "ovelse": "Ti repetisjoner der du på forhånd har bestemt hvilke fire som gir godbit. Hold deg til lista.", "videosjekk": "Har hunden blikket på hånda di eller på deg?"}, {"id": "miljo", "nr": 10, "navn": "Styr miljøet i stedet for å rette", "kort": "Forhindre feilen framfor å reagere på den.", "hva": "Bånd, grinder, avstand og det å rydde bort fristelser. Å sette opp situasjonen slik at feil ikke kan skje.", "hvorfor": "Hver gang hunden får øve seg på uønsket atferd, blir den bedre på den. Miljøstyring er det som erstatter straff i en belønningsbasert metode — du fjerner muligheten, og belønner alternativet.", "ovelse": "Velg ett problem hjemme hos deg. Skriv ned én fysisk endring som gjør det umulig, og én atferd du kan belønne i stedet.", "videosjekk": "Ikke aktuelt — dette er en øvelse i planlegging, ikke i gjennomføring."}], "feilsoking": [{"id": "kun-mat", "problem": "Hunden lystrer bare når jeg har godbiter i hånda", "kort": "Det vanligste problemet i belønningsbasert trening — og alltid det samme å fikse.", "arsaker": ["Lokkingen ble aldri fadet. Hånda med mat er fortsatt selve signalet.", "Godbiten er synlig før hunden har gjort noe. Da er det en bestikkelse, ikke en belønning.", "Belønningen kommer hver eneste gang, så det er lett å se når det ikke lønner seg."], "tiltak": ["Flytt maten ut av hånda og ned i lomma eller en godbitpung. Belønningen hentes ETTER markøren.", "Gjør nøyaktig samme håndbevegelse med tom hånd. Går det i stykker, gjør bevegelsen litt større igjen.", "Gå til uforutsigbar belønning: cirka annenhver, tilfeldig valgt.", "Ta i bruk livsbelønninger. Døra åpnes, båndet festes, ballen kastes, hunden får snuse."], "ferdighet": "uforutsigbar"}, {"id": "reiser-seg", "problem": "Hunden reiser seg fra dekk eller sitt", "kort": "Nesten alltid varighet eller belønningsplassering.", "arsaker": ["Du bygde varigheten jevnt oppover, så hunden lærte når det pleier å ta slutt.", "Du mater i brysthøyde, så hunden må reise seg for å spise.", "Det finnes ikke noe frigjøringsord, så hunden bestemmer selv når øvelsen er over.", "Du markerte først da hunden reiste seg, ikke mens den lå."], "tiltak": ["Bland tidene: 3 sekunder, 12, 2, 8. Aldri en jevn stigning.", "Lever godbiten mellom framlabbene, nede ved gulvet.", "Lær et frigjøringsord — «værsågod» — og bruk det til å avslutte hver eneste gang.", "Slipp inn en godbit MENS hunden ligger, uten å si noe. Det betaler for å bli liggende."], "ferdighet": "levering"}, {"id": "kommer-ikke", "problem": "Hunden kommer ikke når jeg roper", "kort": "Behandle dette som et hastesak-punkt. Ikke tren videre utendørs uten line før det sitter.", "arsaker": ["Innkallingsordet er brukt opp — det har blitt ignorert så mange ganger at det ikke betyr noe.", "Innkalling betyr som regel at noe hyggelig tar slutt: bånd på, hjem, bad.", "Belønningen er for kjedelig i forhold til det hunden holdt på med.", "Du kalte i en situasjon hunden ikke hadde noen sjanse til å klare."], "tiltak": ["Bytt ord. Start på nytt med et ord du aldri har brukt, og lad det innendørs.", "Bruk din aller beste godbit, og gi tre-fire biter etter hverandre. Innkalling skal være årets tilbud.", "Kall hunden inn, belønn, og send den ut igjen med «lek videre». Ni av ti innkallinger skal ende med at hunden får fortsette.", "Ti meter langline til det sitter. Ikke for å dra hunden inn — kun som sikkerhet.", "Er du i tvil om hunden kommer: ikke kall. Gå og hent den."], "ferdighet": "en-gang"}, {"id": "drar", "problem": "Hunden drar i båndet", "kort": "Den ene tingen som opprettholder draing er at den virker.", "arsaker": ["Dere kommer framover mens båndet er stramt. Da er draing en fungerende strategi.", "Trening og tur blandes, så hunden får motstridende informasjon.", "Belønningen leveres foran deg, som trener hunden i å gå foran.", "Turen er den eneste utløpsventilen for en hund som keder seg."], "tiltak": ["Stopp helt opp når båndet strammes. Gå videre først når det er slakt. Konsekvent, hver gang.", "Skill tydelig: treningsøkter er tre minutter og femti meter. På vanlige turer, bruk sele og godta at det ikke er trening.", "Lever alltid godbiten ved buksesømmen din.", "Legg inn snusepauser som belønning. For de fleste hunder er det å få snuse sterkere enn mat.", "Bytt retning ofte og uforutsigbart, så det lønner seg å følge med på deg."], "ferdighet": "levering"}, {"id": "mister-interessen", "problem": "Hunden mister interessen midt i økta", "kort": "Nesten alltid for lange økter eller for høyt krav.", "arsaker": ["Økta varer lengre enn to-tre minutter.", "Kriteriet er for høyt, og hunden bommer gjentatte ganger.", "Godbiten er for lav verdi for situasjonen.", "Hunden er mett, sliten, eller det er for varmt."], "tiltak": ["Sett alarm på to minutter og avslutt når den går.", "Senk kravet til hunden får rett åtte av ti ganger igjen.", "Oppgrader godbiten. Tørrfôr på kjøkkenet, lever i parken.", "Tren før måltid, ikke etter.", "Se etter snusing, kløing og gjesping — det er signal om å gjøre det lettere nå."], "ferdighet": "avslutt"}, {"id": "hopper", "problem": "Hunden hopper på folk", "kort": "Trenger et svar på hva den skal gjøre i stedet.", "arsaker": ["Hopping har alltid virket — den får oppmerksomhet, også når oppmerksomheten er irritert.", "Hunden har ingen alternativ atferd å tilby i den situasjonen.", "Situasjonen får oppstå igjen og igjen, så hunden øver."], "tiltak": ["Styr miljøet: bånd på når det ringer på, eller hunden bak en grind til roen har lagt seg.", "Lær «gå til plassen» og send hunden dit før døra åpnes.", "Belønn fire labber i bakken. Godbiten leveres nede ved gulvet, aldri i brysthøyde.", "Be gjestene la være å hilse før hunden har alle labber nede.", "Ingen kneing, ingen kjeft. Det gir oppmerksomhet, og oppmerksomhet er det hunden er ute etter."], "ferdighet": "miljo"}, {"id": "hard-munn", "problem": "Hunden napper godbiten hardt", "kort": "Lett å fikse, og verdt å fikse tidlig.", "arsaker": ["Hunden er stresset eller overivrig.", "Godbiten holdes så vidt mellom to fingertupper, som inviterer til napping.", "Hunden har lært at maten kan forsvinne igjen."], "tiltak": ["Legg godbiten i flat, åpen håndflate i stedet for mellom fingrene.", "Hold godbiten i lukket neve. Åpne først når hunden slutter å presse.", "Senk aktiveringsnivået: roligere stemme, lengre pauser mellom repetisjonene.", "Aldri trekk hånda til deg når hunden strekker seg — det gjør nappingen verre."], "ferdighet": "levering"}, {"id": "redd", "problem": "Hunden virker redd eller stresset", "kort": "Her stopper treningen, og noe annet begynner.", "arsaker": ["Miljøet er for krevende — for nært, for høyt, for mange.", "Hunden har en dårlig erfaring knyttet til situasjonen.", "Det kan ligge smerte eller sykdom bak."], "tiltak": ["Øk avstanden til det hunden reagerer på. Avstand er det viktigste verktøyet du har.", "Ikke tren. En redd hund lærer ikke — den overlever.", "Tving aldri hunden nærmere det den er redd for.", "Ved vedvarende frykt, aggresjon eller separasjonsangst: ta kontakt med en kvalifisert atferdskonsulent eller veterinær. Dette er utenfor det en app kan hjelpe deg med, og plutselig endret atferd kan ha medisinske årsaker."], "ferdighet": "les", "henvis": true}]};
+</script>
+<script>
+/* ====== lagring: window.storage (Claude) -> localStorage (egen server) -> minne ====== */
+const Lager = (() => {
+  const NOKKEL = 'hundetrener:v1';
+  let minne = null;
+  const harWs = typeof window !== 'undefined' && window.storage && typeof window.storage.get === 'function';
+  return {
+    async les() {
+      if (harWs) {
+        try { const r = await window.storage.get(NOKKEL); return r ? JSON.parse(r.value) : null; }
+        catch { return null; }
+      }
+      try { const r = localStorage.getItem(NOKKEL); return r ? JSON.parse(r) : null; }
+      catch { return minne; }
+    },
+    async skriv(d) {
+      minne = d;
+      if (harWs) { try { await window.storage.set(NOKKEL, JSON.stringify(d)); } catch {} return; }
+      try { localStorage.setItem(NOKKEL, JSON.stringify(d)); } catch {}
+    }
+  };
+})();
+
+/* ====== tilstand ====== */
+const START = {
+  hund: null,
+  fremdrift: {},          // id -> {steg:1, ferdig:false}
+  trener: {},             // ferdighetId -> true
+  logg: [],               // {dato, ovelse, steg, riktig, bom}
+  dagens: null,           // {dato, okter:[...]}
+  godbit: { type: 'torrfor', kcal: 1.5 }
+};
+let S = structuredClone(START);
+const lagre = () => Lager.skriv(S);
+
+const iDag = () => new Date().toISOString().slice(0, 10);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const ov = id => DATA.ovelser.find(o => o.id === id);
+const fremd = id => S.fremdrift[id] || { steg: 1, ferdig: false };
+
+/* deterministisk stokking per dag, så lista ikke hopper rundt */
+function frø(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); }
+function velg(arr, n, s) {
+  const a = [...arr]; let r = frø(s);
+  for (let i = a.length - 1; i > 0; i--) { r = (r * 1103515245 + 12345) & 0x7fffffff; const j = r % (i + 1);[a[i], a[j]] = [a[j], a[i]]; }
+  return a.slice(0, n);
+}
+
+const laastOpp = o => o.forutsetninger.every(f => fremd(f).steg > 2 || fremd(f).ferdig);
+const tilgjengelige = () => DATA.ovelser.filter(laastOpp);
+
+/* ====== dagens fem ====== */
+function lagDagensFem() {
+  const d = iDag(), t = tilgjengelige(), okter = [];
+  const brukt = new Set();
+  const legg = (o, steg, merke) => {
+    if (!o || !steg || brukt.has(o.id + steg.nr)) return false;
+    brukt.add(o.id + steg.nr); okter.push({ ovelse: o.id, steg: steg.nr, merke, gjort: false }); return true;
+  };
+
+  // 1 — ny innlæring: den påbegynte øvelsen med lavest nivå som ikke er ferdig
+  const nye = t.filter(o => !fremd(o.id).ferdig).sort((a, b) => a.nivaa - b.nivaa);
+  const ny = nye[0]; if (ny) legg(ny, ny.steg[fremd(ny.id).steg - 1], 'Ny læring');
+
+  // 2 — vedlikehold: steg som allerede er bestått
+  const bestått = [];
+  t.forEach(o => { const n = fremd(o.id).steg; for (let i = 0; i < n - 1; i++) bestått.push([o, o.steg[i]]); });
+  velg(bestått, 2, d + 'v').forEach(([o, s]) => legg(o, s, 'Vedlikehold'));
+
+  // 3 — generalisering
+  const gen = [];
+  t.forEach(o => { const n = fremd(o.id).steg; o.steg.forEach((s, i) => { if (s.type === 'generalisering' && i < n) gen.push([o, s]); }); });
+  const g = velg(gen, 1, d + 'g')[0]; if (g) legg(g[0], g[1], 'Generalisering');
+
+  // 4 — moro
+  const moro = t.filter(o => o.kategori === 'triks' || o.kategori === 'aktivisering');
+  velg(moro, 2, d + 'm').some(o => legg(o, o.steg[fremd(o.id).steg - 1], 'Moro'));
+
+  // fyll opp til fem med nye steg …
+  const kø = velg(t, t.length, d + 'f');
+  for (const o of kø) {
+    if (okter.length >= 5) break;
+    legg(o, o.steg[fremd(o.id).steg - 1], 'Ekstra');
+  }
+  // … og med en runde til når hunden har få øvelser låst opp
+  for (let i = 0; okter.length < 5 && kø.length; i++) {
+    const o = kø[i % kø.length];
+    okter.push({ ovelse: o.id, steg: fremd(o.id).steg, merke: 'Runde to', gjort: false });
+  }
+  return { dato: d, okter: okter.slice(0, 5) };
+}
+function sikreDagens() {
+  if (!S.dagens || S.dagens.dato !== iDag()) { S.dagens = lagDagensFem(); lagre(); }
+  return S.dagens;
+}
+
+/* ====== visning ====== */
+const app = document.getElementById('app');
+let fane = 'hjem';
+let okt = null, klokke = null;
+
+function vis(html, medMeny = true) {
+  app.innerHTML = html + (medMeny ? meny() : '');
+  window.scrollTo(0, 0);
+}
+const IKON = {
+  hjem: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
+  bibliotek: '<rect x="3" y="4" width="7" height="16" rx="1"/><rect x="14" y="4" width="7" height="16" rx="1"/>',
+  trener: '<circle cx="12" cy="7" r="3.2"/><path d="M5 21c0-4 3.1-6.5 7-6.5S19 17 19 21"/>',
+  verktoy: '<path d="M12 3v18"/><path d="M5 8h14"/><circle cx="7" cy="14" r="3"/><circle cx="17" cy="14" r="3"/>'
+};
+const NAVN = { hjem: 'I dag', bibliotek: 'Øvelser', trener: 'Deg', verktoy: 'Verktøy' };
+function meny() {
+  return `<nav class="meny">${['hjem', 'bibliotek', 'trener', 'verktoy'].map(f => `
+    <button data-fane="${f}" ${fane === f ? 'aria-current="page"' : ''}>
+      <svg class="ikon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">${IKON[f]}</svg>
+      ${NAVN[f]}</button>`).join('')}</nav>`;
+}
+
+/* ---- onboarding ---- */
+let utkast = { navn: '', alder: 'voksen', vekt: 15, motivasjon: 'mat', aktivitet: 'normal' };
+function visOnboarding() {
+  vis(`<div class="side">
+    <div class="topp">
+      <div class="eyebrow">Kom i gang</div>
+      <h1>Hvem skal du trene?</h1>
+      <p class="svak">Fem spørsmål. De brukes til å sette opp dagslistene og regne ut godbitbudsjettet.</p>
+    </div>
+    <label for="n">Hva heter hunden?</label>
+    <input id="n" value="${esc(utkast.navn)}" placeholder="Navn" autocomplete="off">
+    <label>Alder</label>
+    <div class="valg" data-felt="alder">
+      ${[['valp', 'Under 1 år'], ['voksen', 'Voksen'], ['senior', 'Over 8 år']].map(([v, t]) =>
+    `<button data-v="${v}" aria-pressed="${utkast.alder === v}">${t}</button>`).join('')}
+    </div>
+    <label for="v">Vekt i kilo</label>
+    <input id="v" type="number" inputmode="decimal" min="1" max="90" value="${utkast.vekt}">
+    <label>Hvor aktiv er hverdagen?</label>
+    <div class="valg" data-felt="aktivitet">
+      ${[['rolig', 'Rolig'], ['normal', 'Normal'], ['aktiv', 'Svært aktiv']].map(([v, t]) =>
+      `<button data-v="${v}" aria-pressed="${utkast.aktivitet === v}">${t}</button>`).join('')}
+    </div>
+    <label>Hva jobber hunden best for?</label>
+    <div class="valg" data-felt="motivasjon">
+      ${[['mat', 'Mat'], ['leke', 'Leke'], ['ros', 'Ros og kos']].map(([v, t]) =>
+        `<button data-v="${v}" aria-pressed="${utkast.motivasjon === v}">${t}</button>`).join('')}
+    </div>
+    <div style="height:26px"></div>
+    <button class="knapp" id="start">Sett opp treningen</button>
+  </div>`, false);
+
+  app.querySelectorAll('.valg').forEach(g => g.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    utkast[g.dataset.felt] = b.dataset.v;
+    g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  }));
+  app.querySelector('#n').addEventListener('input', e => utkast.navn = e.target.value);
+  app.querySelector('#v').addEventListener('input', e => utkast.vekt = parseFloat(e.target.value) || 15);
+  app.querySelector('#start').addEventListener('click', () => {
+    if (!utkast.navn.trim()) { app.querySelector('#n').focus(); return; }
+    S.hund = { ...utkast }; S.dagens = null; lagre(); fane = 'hjem'; rute();
+  });
+}
+
+/* ---- hjem ---- */
+function visHjem() {
+  const d = sikreDagens();
+  const gjort = d.okter.filter(o => o.gjort).length;
+  const kort = d.okter.map((o, i) => {
+    const e = ov(o.ovelse), s = e.steg[o.steg - 1];
+    const kl = o.merke === 'Ny læring' ? 'merkelapp merkelapp--ny' : o.merke === 'Moro' ? 'merkelapp merkelapp--moro' : 'merkelapp';
+    return `<button class="kort kort--klikk" data-okt="${i}" ${o.gjort ? 'style="opacity:.45"' : ''}>
+      <div class="kort__topp">
+        <h3>${esc(e.navn)}</h3>
+        <span class="kort__merke">${o.gjort ? '✓ gjort' : '~3 min'}</span>
+      </div>
+      <p style="margin-bottom:8px">Steg ${o.steg} · ${esc(s.tittel)}</p>
+      <span class="${kl}">${o.merke}</span>
+    </button>`;
+  }).join('');
+
+  vis(`<div class="side">
+    <div class="topp">
+      <div class="eyebrow">${new Date().toLocaleDateString('no-NO', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+      <h1>Fem korte økter</h1>
+      <p class="svak">${gjort} av 5 gjort i dag${gjort === 5 ? ' — ferdig.' : '. Hver økt tar to–tre minutter.'}</p>
+    </div>
+    ${kort}
+    <div class="varsel">Kortere er bedre. Avslutt mens ${esc(S.hund.navn)} fortsatt vil mer.</div>
+  </div>`);
+
+  app.querySelectorAll('[data-okt]').forEach(b =>
+    b.addEventListener('click', () => startOkt(+b.dataset.okt)));
+}
+
+/* ---- økt ---- */
+function startOkt(i) {
+  const o = sikreDagens().okter[i];
+  const e = ov(o.ovelse), s = e.steg[o.steg - 1];
+  okt = { i, e, s, riktig: 0, bom: 0, sek: 0 };
+  klokke = setInterval(() => { okt.sek++; tegnKlokke(); }, 1000);
+  tegnOkt();
+}
+function tegnKlokke() {
+  const el = document.getElementById('klokke'); if (!el) return;
+  const m = String(Math.floor(okt.sek / 60)).padStart(2, '0'), s = String(okt.sek % 60).padStart(2, '0');
+  el.textContent = `${m}:${s}`;
+  el.className = 'klokke' + (okt.sek >= 180 ? ' klokke--over' : '');
+}
+function tegnOkt() {
+  const { e, s } = okt;
+  vis(`<div class="side side--mork">
+    <div class="rad mellom" style="margin-bottom:18px">
+      <div><div class="eyebrow">Steg ${s.nr} av ${e.steg.length} · ${s.type === 'fading' ? 'Nedtrapping' : s.type === 'generalisering' ? 'Generalisering' : 'Innlæring'}</div>
+      <h1 style="font-size:1.8rem">${esc(e.navn)}</h1></div>
+      <button class="knapp knapp--liten knapp--sekundaer" id="avbryt" style="color:#9AA695;border-color:#3F4C3C">Avbryt</button>
+    </div>
+    <div class="instruks">${esc(s.instruksjon)}</div>
+    <div class="kriterium">MÅL · ${esc(s.kriterium)}</div>
+    ${s.vanligFeil ? `<details><summary>Vanlig feil</summary><p>${esc(s.vanligFeil)}</p></details>` : ''}
+    ${s.tips ? `<details><summary>Tips</summary><p>${esc(s.tips)}</p></details>` : ''}
+    <div class="telling" id="telling"></div>
+    <div class="okt-knapper">
+      <button class="stor stor--ja" id="ja">Ja</button>
+      <button class="stor stor--bom" id="bom">Bom</button>
+    </div>
+    <div class="klokke" id="klokke">00:00</div>
+    <div style="height:14px"></div>
+    <button class="knapp knapp--sekundaer" id="ferdig" style="color:#9AA695;border-color:#3F4C3C">Avslutt tidlig</button>
+  </div>`, false);
+
+  tegnTelling(); tegnKlokke();
+  document.getElementById('ja').onclick = () => tell(true);
+  document.getElementById('bom').onclick = () => tell(false);
+  document.getElementById('ferdig').onclick = () => avsluttOkt();
+  document.getElementById('avbryt').onclick = () => { clearInterval(klokke); okt = null; rute(); };
+}
+function tegnTelling() {
+  const el = document.getElementById('telling'); if (!el) return;
+  const ruter = Array.from({ length: 10 }, (_, i) =>
+    `<div class="rute ${i < okt.riktig ? 'rute--fylt' : ''}"></div>`).join('');
+  const bom = Array.from({ length: okt.bom }, () => '<span class="bom-prikk"></span>').join('');
+  el.innerHTML = `
+    <div class="telling__grense"><span style="left:70%">GRENSE 8</span></div>
+    <div class="telling__rad">${ruter}<div class="strek" style="left:calc(70% - 2.5px)"></div></div>
+    <div class="bom-rad">${bom}${okt.bom ? `<span class="bom-merke">${okt.bom} bom</span>` : '<span class="bom-merke">ingen bom</span>'}</div>
+    <div class="telling__tall">${okt.riktig} RIKTIGE · ${10 - okt.riktig - okt.bom} IGJEN</div>`;
+}
+function tell(ok) {
+  if (okt.riktig + okt.bom >= 10) return;
+  ok ? okt.riktig++ : okt.bom++;
+  tegnTelling();
+  if (okt.riktig + okt.bom >= 10) setTimeout(avsluttOkt, 450);
+}
+function avsluttOkt() {
+  clearInterval(klokke);
+  const { e, s, riktig, bom } = okt;
+  const f = fremd(e.id);
+  let dom, tittel, tekst, klasse;
+
+  if (riktig >= 8) {
+    klasse = 'opp';
+    if (s.nr === f.steg && s.nr < e.steg.length) { S.fremdrift[e.id] = { steg: s.nr + 1, ferdig: false }; tittel = 'Neste steg er åpnet'; tekst = `Steg ${s.nr + 1}: ${e.steg[s.nr].tittel}`; }
+    else if (s.nr === f.steg) { S.fremdrift[e.id] = { steg: s.nr, ferdig: true }; tittel = `${e.navn} er ferdig`; tekst = 'Hold den ved like i dagslistene framover.'; }
+    else { tittel = 'Sitter fortsatt'; tekst = 'Vedlikeholdet virker. Ingen endring i fremdriften.'; }
+  } else if (riktig >= 5) {
+    klasse = 'bli'; tittel = 'Bli på dette steget';
+    tekst = 'Litt mer trening her før dere går videre. Prøv igjen senere i dag eller i morgen.';
+  } else {
+    klasse = 'ned';
+    if (s.nr === f.steg && s.nr > 1) { S.fremdrift[e.id] = { steg: s.nr - 1, ferdig: false }; tittel = 'Vi går ett steg tilbake'; tekst = `Tilbake til steg ${s.nr - 1}. Det er ikke et tilbakeskritt — det er slik man bygger noe som holder.`; }
+    else { tittel = 'Gjør steget lettere'; tekst = 'Kortere tid, kortere avstand, eller mer avstand til det som distraherer. Kravet var for høyt, ikke hunden for treg.'; }
+  }
+  dom = { klasse, tittel, tekst };
+
+  S.logg.push({ dato: iDag(), ovelse: e.id, steg: s.nr, riktig, bom });
+  const dg = sikreDagens(); if (dg.okter[okt.i]) dg.okter[okt.i].gjort = true;
+  lagre();
+  visResultat(dom, riktig, bom, e);
+}
+function visResultat(dom, riktig, bom, e) {
+  const igjen = sikreDagens().okter.filter(o => !o.gjort).length;
+  vis(`<div class="side">
+    <div class="topp">
+      <div class="eyebrow">${esc(e.navn)} · resultat</div>
+      <h1>${riktig} av ${riktig + bom}</h1>
+    </div>
+    <div class="dom dom--${dom.klasse}">
+      <h2>${esc(dom.tittel)}</h2>
+      <p>${esc(dom.tekst)}</p>
+    </div>
+    ${riktig < 5 ? `<div class="varsel">Ingen kjeft, ingen gjentakelser. Feil betyr bare at neste økt skal være lettere.</div>` : ''}
+    <button class="knapp" id="tilbake">${igjen ? `Videre — ${igjen} økt${igjen > 1 ? 'er' : ''} igjen i dag` : 'Ferdig for i dag'}</button>
+  </div>`, false);
+  document.getElementById('tilbake').onclick = () => { okt = null; fane = 'hjem'; rute(); };
+}
+
+/* ---- bibliotek ---- */
+function visBibliotek() {
+  const grupper = { grunnlag: [], hverdag: [], triks: [], aktivisering: [] };
+  DATA.ovelser.forEach(o => grupper[o.kategori].push(o));
+  const seksjon = (k) => {
+    if (!grupper[k].length) return '';
+    return `<h2 style="margin:22px 0 10px">${DATA.kategorier[k]}</h2>` + grupper[k].map(o => {
+      const f = fremd(o.id), aapen = laastOpp(o);
+      const n = f.ferdig ? o.steg.length : f.steg - 1;
+      return `<button class="kort kort--klikk ${aapen ? '' : 'kort--laast'}" data-ov="${o.id}">
+        <div class="kort__topp"><h3>${esc(o.navn)}</h3>
+        <span class="kort__merke">${aapen ? `${n}/${o.steg.length}` : 'låst'}</span></div>
+        <p>${esc(aapen ? o.beskrivelse : 'Krever ' + o.forutsetninger.map(x => ov(x).navn).join(' og ') + ' først')}</p>
+      </button>`;
+    }).join('');
+  };
+  vis(`<div class="side">
+    <div class="topp"><div class="eyebrow">Bibliotek</div><h1>Øvelser</h1>
+    <p class="svak">Ti øvelser, 57 steg. Alle bygger på belønning — ingen straff, ingen korrigering.</p></div>
+    ${['grunnlag', 'hverdag', 'triks', 'aktivisering'].map(seksjon).join('')}
+  </div>`);
+  app.querySelectorAll('[data-ov]').forEach(b => b.addEventListener('click', () => visOvelse(b.dataset.ov)));
+}
+function visOvelse(id) {
+  const o = ov(id), f = fremd(id);
+  const steg = o.steg.map(s => {
+    const klar = f.ferdig || s.nr < f.steg, naa = !f.ferdig && s.nr === f.steg;
+    return `<div class="steg ${klar ? 'steg--klar' : ''} ${naa ? 'steg--naa' : ''}">
+      <div class="steg__nr">STEG ${s.nr} · ${s.type === 'fading' ? 'NEDTRAPPING' : s.type === 'generalisering' ? 'GENERALISERING' : 'INNLÆRING'}${klar ? ' · BESTÅTT' : ''}</div>
+      <h3>${esc(s.tittel)}</h3>
+      <p>${esc(s.instruksjon)}</p>
+      <p style="margin-top:6px;color:var(--tekst)"><strong>Mål:</strong> ${esc(s.kriterium)}</p>
+      ${s.vanligFeil ? `<p style="margin-top:6px"><strong>Vanlig feil:</strong> ${esc(s.vanligFeil)}</p>` : ''}
+      ${s.tips ? `<p style="margin-top:6px"><strong>Tips:</strong> ${esc(s.tips)}</p>` : ''}
+    </div>`;
+  }).join('');
+  vis(`<div class="side">
+    <button class="knapp knapp--liten knapp--sekundaer" id="attende" style="margin-bottom:16px">← Øvelser</button>
+    <div class="topp">
+      <div class="eyebrow">${DATA.kategorier[o.kategori]} · godbitverdi ${o.godbitverdi}</div>
+      <h1>${esc(o.navn)}</h1>
+      <p class="svak">${esc(o.beskrivelse)}</p>
+    </div>
+    <div class="varsel">${esc(o.hvorfor)}</div>
+    ${o.viktig ? `<div class="varsel">${esc(o.viktig)}</div>` : ''}
+    ${o.ufravikeligeRegler ? `<h2>Ufravikelige regler</h2><ul class="punkt">${o.ufravikeligeRegler.map(r => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}
+    <h2 style="margin-top:20px">Stegene</h2>
+    ${steg}
+  </div>`);
+  document.getElementById('attende').onclick = () => { fane = 'bibliotek'; rute(); };
+}
+
+/* ---- trenerstigen ---- */
+function visTrener() {
+  const antall = Object.keys(S.trener).length;
+  vis(`<div class="side">
+    <div class="topp"><div class="eyebrow">Trenerstigen</div><h1>Ferdighetene dine</h1>
+    <p class="svak">${antall} av ${DATA.trenerstige.length} øvd inn. Dette er den delen som faktisk avgjør hvor langt dere kommer.</p></div>
+    ${DATA.trenerstige.map(t => `<button class="kort kort--klikk" data-t="${t.id}">
+      <div class="kort__topp"><h3>${t.nr}. ${esc(t.navn)}</h3>
+      <span class="kort__merke">${S.trener[t.id] ? '✓ øvd' : ''}</span></div>
+      <p>${esc(t.kort)}</p></button>`).join('')}
+  </div>`);
+  app.querySelectorAll('[data-t]').forEach(b => b.addEventListener('click', () => visFerdighet(b.dataset.t)));
+}
+function visFerdighet(id) {
+  const t = DATA.trenerstige.find(x => x.id === id), gjort = !!S.trener[id];
+  vis(`<div class="side">
+    <button class="knapp knapp--liten knapp--sekundaer" id="attende" style="margin-bottom:16px">← Ferdigheter</button>
+    <div class="topp"><div class="eyebrow">Ferdighet ${t.nr}</div><h1>${esc(t.navn)}</h1></div>
+    <p>${esc(t.hva)}</p>
+    <h2 style="margin-top:20px">Hvorfor det betyr noe</h2><p>${esc(t.hvorfor)}</p>
+    <h2 style="margin-top:20px">Øv på det</h2><p>${esc(t.ovelse)}</p>
+    <div class="varsel"><strong>Se på video:</strong> ${esc(t.videosjekk)}</div>
+    <button class="knapp ${gjort ? 'knapp--sekundaer' : ''}" id="merk">${gjort ? '✓ Merket som øvd' : 'Merk som øvd'}</button>
+  </div>`);
+  document.getElementById('attende').onclick = () => { fane = 'trener'; rute(); };
+  document.getElementById('merk').onclick = () => {
+    if (S.trener[id]) delete S.trener[id]; else S.trener[id] = true;
+    lagre(); visFerdighet(id);
+  };
+}
+
+/* ---- verktøy: budsjett + feilsøking ---- */
+const GODBIT = {
+  torrfor: ['Tørrfôr', 1.5], ost: ['Ost i terning', 4], polse: ['Pølsebit', 5],
+  kylling: ['Tørket kylling', 2], lever: ['Lever', 3]
+};
+function budsjett() {
+  const h = S.hund, kg = Math.max(1, h.vekt);
+  const rer = 70 * Math.pow(kg, 0.75);
+  const faktor = h.alder === 'valp' ? 2.5 : h.alder === 'senior' ? 1.4 : h.aktivitet === 'aktiv' ? 2.0 : h.aktivitet === 'rolig' ? 1.4 : 1.6;
+  const mer = rer * faktor, tak = mer * 0.10;
+  const antall = 50, brukt = antall * S.godbit.kcal;
+  return { mer: Math.round(mer), tak: Math.round(tak), brukt: Math.round(brukt), antall, gram: Math.round(brukt / 3.6) };
+}
+function visVerktoy() {
+  const b = budsjett(), over = b.brukt > b.tak, pst = Math.min(100, Math.round(b.brukt / b.tak * 100));
+  vis(`<div class="side">
+    <div class="topp"><div class="eyebrow">Verktøy</div><h1>Godbitbudsjett</h1>
+    <p class="svak">Fem økter à ti repetisjoner er 50 godbiter om dagen. Det er ekte kalorier.</p></div>
+    <div class="kort">
+      <label for="g" style="margin-top:0">Hva belønner du med?</label>
+      <select id="g">${Object.entries(GODBIT).map(([k, [n, kc]]) =>
+    `<option value="${k}" ${S.godbit.type === k ? 'selected' : ''}>${n} — ${kc} kcal</option>`).join('')}</select>
+      <div style="height:18px"></div>
+      <div class="tall-stor">${b.brukt} kcal</div>
+      <p class="svak" style="margin:4px 0 0">av ${b.tak} kcal tilgjengelig til trening</p>
+      <div class="maaler"><div class="maaler__fyll ${over ? 'maaler__fyll--over' : ''}" style="width:${pst}%"></div></div>
+      <p class="svak" style="font-size:.82rem">${esc(S.hund.navn)} trenger rundt ${b.mer} kcal om dagen. Ti prosent er trygt å bruke på trening.</p>
+    </div>
+    <div class="varsel">${over
+      ? `Dette er mer enn budsjettet. Bytt til en godbit med lavere kaloriinnhold, del bitene mindre, eller trekk ${b.gram} g tørrfôr fra måltidene.`
+      : `Dette går fint. Trekk likevel omtrent ${b.gram} g tørrfôr fra dagsrasjonen, så holder vekta seg.`}</div>
+    <div class="varsel">Ertestor er stort nok. En godbit skal svelges, ikke tygges — tygging spiser opp økta.</div>
+
+    <h2 style="margin-top:28px">Når noe ikke virker</h2>
+    <p class="svak" style="margin-bottom:14px">Svaret er aldri straff. Det er alltid å endre noe i oppsettet.</p>
+    ${DATA.feilsoking.map(f => `<button class="kort kort--klikk" data-f="${f.id}">
+      <h3>${esc(f.problem)}</h3><p>${esc(f.kort)}</p></button>`).join('')}
+
+    <h2 style="margin-top:28px">Data</h2>
+    <p class="svak" style="font-size:.88rem">${S.logg.length} økter logget.</p>
+    <button class="knapp knapp--sekundaer" id="eksport" style="margin-bottom:10px">Last ned dataene mine</button>
+    <button class="knapp knapp--sekundaer" id="nullstill">Nullstill alt</button>
+  </div>`);
+
+  document.getElementById('g').onchange = e => {
+    S.godbit = { type: e.target.value, kcal: GODBIT[e.target.value][1] }; lagre(); visVerktoy();
+  };
+  app.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => visFeil(b.dataset.f)));
+  document.getElementById('eksport').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' }));
+    a.download = 'hundetrening.json'; a.click();
+  };
+  document.getElementById('nullstill').onclick = () => {
+    if (confirm('Slette all fremdrift og starte på nytt?')) { S = structuredClone(START); lagre(); rute(); }
+  };
+}
+function visFeil(id) {
+  const f = DATA.feilsoking.find(x => x.id === id);
+  const fer = DATA.trenerstige.find(t => t.id === f.ferdighet);
+  vis(`<div class="side">
+    <button class="knapp knapp--liten knapp--sekundaer" id="attende" style="margin-bottom:16px">← Verktøy</button>
+    <div class="topp"><div class="eyebrow">Feilsøking</div><h1>${esc(f.problem)}</h1>
+    <p class="svak">${esc(f.kort)}</p></div>
+    <h2>Sannsynlige årsaker</h2>
+    <ul class="punkt">${f.arsaker.map(a => `<li>${esc(a)}</li>`).join('')}</ul>
+    <h2>Slik løser du det</h2>
+    <ul class="punkt">${f.tiltak.map(a => `<li>${esc(a)}</li>`).join('')}</ul>
+    ${f.henvis ? `<div class="varsel henvis">Frykt, aggresjon og separasjonsangst hører hjemme hos en kvalifisert atferdskonsulent eller veterinær, ikke i en app.</div>` : ''}
+    ${fer ? `<button class="kort kort--klikk" data-t="${fer.id}"><div class="eyebrow">Øv på ferdigheten</div>
+      <h3>${fer.nr}. ${esc(fer.navn)}</h3><p>${esc(fer.kort)}</p></button>` : ''}
+  </div>`);
+  document.getElementById('attende').onclick = () => { fane = 'verktoy'; rute(); };
+  const t = app.querySelector('[data-t]'); if (t) t.onclick = () => visFerdighet(t.dataset.t);
+}
+
+/* ---- ruting ---- */
+function rute() {
+  if (!S.hund) return visOnboarding();
+  ({ hjem: visHjem, bibliotek: visBibliotek, trener: visTrener, verktoy: visVerktoy }[fane] || visHjem)();
+}
+app.addEventListener('click', e => {
+  const b = e.target.closest('[data-fane]'); if (!b) return;
+  fane = b.dataset.fane; okt = null; clearInterval(klokke); rute();
+});
+
+(async () => {
+  try {
+    const lagret = await Lager.les();
+    if (lagret) S = Object.assign(structuredClone(START), lagret);
+    rute();
+  } catch (e) {
+    app.innerHTML = `<div class="side"><div class="topp"><h1>Appen fikk ikke start</h1>
+      <p class="svak">Noe gikk galt under oppstart: ${esc(e.message)}</p></div>
+      <button class="knapp" onclick="location.reload()">Prøv igjen</button></div>`;
+  }
+  if ('serviceWorker' in navigator && location.protocol === 'https:')
+    navigator.serviceWorker.register('sw.js').catch(() => { });
+})();
+
+</script>
+</body>
+</html>
